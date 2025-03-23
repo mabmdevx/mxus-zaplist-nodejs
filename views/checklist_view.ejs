@@ -23,7 +23,7 @@
 <div class="row">
     <div class="col-lg-12"></div>
     <% if (share_url === true) { %>
-        <h1 class="page-header share-url-title">View Checklist</h1>
+        <h1 class="page-header share-url-title">Checklist <%= checklist ? checklist.checklist_url_slug : '' %></h1>
     <% } else { %>
         <h1 class="page-header">View Checklist</h1>
     <% } %>
