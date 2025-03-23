@@ -1,0 +1,25 @@
+<%- include("layouts/top_auth") %>
+
+<div id="page">
+  <div align="center">
+    <div class="content">
+      <div>
+        <div class="container-fluid">
+          <div class="row-fluid">
+            <div class="row-fluid">
+              <div class="http-error"> 
+                <br/><br/><br/>
+                <h2><strong><%= error_title %></strong></h2>
+                <h3 class="info"><%= error_msg %></h3>
+                <br/><br/>
+                <p><a href="#" onclick="history.go(-1)"><i class="fa fa-arrow-left"></i> Go back</a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include("layouts/bottom_auth") %>
