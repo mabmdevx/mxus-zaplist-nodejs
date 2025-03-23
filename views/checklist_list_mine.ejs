@@ -92,7 +92,7 @@
     function copyToClipboard(slug) {
         const url = `${window.location.origin}/share/${slug}`;
         navigator.clipboard.writeText(url).then(() => {
-            alert("Share URL copied to clipboard: " + url);
+            //alert("Share URL copied to clipboard: " + url);
         }).catch(err => {
             alert("Failed to copy the URL: " + err);
         });
