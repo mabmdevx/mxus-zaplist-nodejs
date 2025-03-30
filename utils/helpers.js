@@ -3,6 +3,7 @@ const Checklist = require('../models/Checklist');
 
 function errorHandler(error, req, res) {
 
+    /*
     // Automatic function name detection
     if (!functionName) {
         const stack = new Error().stack;
@@ -12,10 +13,13 @@ function errorHandler(error, req, res) {
 
     // Log the error
     console.error(`Error in ${functionName}:`, error.message);
+    */
+
+    console.error(`Error: `, error.message);
 
     // Render error page
     return res.render('error_general_unauth', {
-        site_title: process.env.SITE_TITLE,
+        SITE_TITLE: process.env.SITE_TITLE,
         error_title: 'Error',
         error_msg: 'Oops! Something went wrong.'
     });
@@ -25,7 +29,7 @@ function errorHandler(error, req, res) {
 function checkUserLoggedIn(req, res, next) {
     console.log('checkUserLoggedIn() :: Function called for path: ', req.path);
 
-    if (!req.session.user_id) {
+    if (!req.session.session_user_id) {
         return res.redirect('/login');
     }
     return next();

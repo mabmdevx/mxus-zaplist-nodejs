@@ -7,7 +7,7 @@ const { connectToDB } = require('./utils/db');
 const { checkUserLoggedIn, errorHandler } = require('./utils/helpers');
 
 const app = express();
-const PORT = process.env.PORT || 3000; // Default to 3000 if not set
+const APP_PORT = process.env.APP_PORT || 3000; // Default to 3000 if not set
 
 // Serve static files (CSS, images, etc.)
 app.use("/static", express.static(path.join(__dirname, "static")));
@@ -93,8 +93,11 @@ app.get('/logout', authController.logout);
 app.get("/dashboard", appController.renderDashboard);
 
 
-// List My Checklsits
-app.get("/my-checklists", checklistController.renderListMyChecklists);
+// List My Checklists
+app.get("/my-checklists", checklistController.renderListMyOwnedChecklists);
+
+// List Shared Checklists
+app.get("/my-shared-checklists", checklistController.renderListMySharedChecklists);
 
 // Create Checklist
 app.get("/checklists/create", checklistController.renderCreateChecklistPage);
@@ -116,7 +119,13 @@ app.post('/checklists/:checklist_id/items/:item_id/toggle-completion', checklist
 // Share URL
 app.get('/share/:url_slug', checklistController.renderSharedChecklistPage);
 
+// Share Checklist with a user
+app.post("/checklists/share/", checklistController.shareChecklist);
+
+// Unshare Checklist with a user
+app.post("/checklists/unshare/", checklistController.unshareChecklist);
+
 // Start the server
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+app.listen(APP_PORT, () => {
+    console.log(`Server running at http://localhost:${APP_PORT}`);
 });

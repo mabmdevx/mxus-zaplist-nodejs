@@ -5,7 +5,7 @@
         <footer class="navbar-default" style="float:right; margin:20px">
             <div>
                 <div class="row">
-                    <div class="col-lg-12"><%= site_title %> by <a href="https://webserve.xyz" target="_blank">WebServe</a></div>
+                    <div class="col-lg-12"><%= SITE_TITLE %> by <a href="https://webserve.xyz" target="_blank">WebServe</a></div>
                 </div>
             </div>
         </footer>
@@ -20,6 +20,9 @@
 
     <!-- SB Admin Scripts - Include with every page -->
     <script src="/static/js/sb-admin.js"></script>
+
+    <!-- Statcounter code -->
+    <%- include("../partials/statcounter") %>
 
 </body>
 

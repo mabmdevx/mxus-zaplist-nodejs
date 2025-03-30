@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title><%= site_title %></title>
+    <title><%= SITE_TITLE %></title>
 
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -35,8 +35,8 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="/dashboard">
-                    <!--<img src="static/images/zaplist_logo_small.png" style="width:120px; height: 37px; margin-left: -10px; margin-top: -10px;" alt="{{site_title}} logo"/> -->
-                    <%= site_title %>
+                    <!--<img src="static/images/zaplist_logo_small.png" style="width:120px; height: 37px; margin-left: -10px; margin-top: -10px;" alt="{{SITE_TITLE}} logo"/> -->
+                    <%= SITE_TITLE %>
                 </a>
             </div>
             <!-- /.navbar-header -->
@@ -44,7 +44,7 @@
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        Welcome, <%= user_id %><i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                        Welcome, <%= session_user_id %><i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
                         <li>
@@ -70,8 +70,11 @@
                         <a href="/my-checklists"><i class="fa fa-list fa-fw"></i>&nbsp;My Checklists</a>
                     </li>
                     <li>
+                        <a href="/my-shared-checklists"><i class="fa fa-list fa-fw"></i>&nbsp;My Shared Checklists</a>
+                    </li>
+                    <li>
                         <a href="/checklists/create"><i class="fa fa-edit fa-fw"></i>&nbsp;Create Checklist</a>
-                    </li>  
+                    </li>
                 </ul>
                 <!-- /#side-menu -->
             </div>

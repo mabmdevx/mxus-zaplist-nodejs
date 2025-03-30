@@ -58,14 +58,19 @@
                             <div class="form-group">
                                 <label>Make Public?</label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="checklist_is_public" id="checklist_is_public1" value="true" 
-                                        <%= checklist && checklist.checklist_is_public ? "checked" : "" %>>Yes
+                                    <input type="radio" name="checklist_is_public" id="checklist_is_public1" value="true"
+                                        <%= checklist && checklist.checklist_is_public === true ? "checked" : "" %>>Yes
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="checklist_is_public" id="checklist_is_public2" value="false" 
-                                        <%= checklist && !checklist.checklist_is_public ? "checked" : "" %>>No
+                                    <input type="radio" name="checklist_is_public" id="checklist_is_public2" value="false"
+                                        <%= !checklist || checklist.checklist_is_public === false ? "checked" : "" %>>No
                                 </label>
-                            </div>                
+                            </div>                            
+
+                            <!-- Hidden field -->
+                            <% if (checklist && checklist._id) { %>
+                            <input id="checklist_id" name="checklist_id" type="hidden" value="<%= checklist._id %>">
+                            <% } %>
 
                             <!-- Hidden field for POST action type -->
                             <input name="postback_checklist" type="hidden" value="<%= checklist ? 'update' : 'create' %>">
@@ -73,8 +78,82 @@
                             <!-- Submit and Reset Buttons -->
                             <button type="submit" class="btn btn-primary">Save</button>
                             <button type="reset" class="btn btn-secondary">Reset</button>
+
+                            <hr/>
                         </form>
                     </div>
+
+                    
+                    <div class="col-lg-6">
+
+                        <% if (checklist && checklist.created_by !== session_user_system_id) { %>
+
+                            <div class="alert alert-info">
+                                Note: Sharing feature is only available to the checklist owner.
+                            </div>
+
+                        <% } else if (checklist && checklist.created_by === session_user_system_id) { %>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    Share with a user:
+                                </div>
+                                <div class="panel-body">
+                                    <!-- Share Checklist Section -->
+                                    <div>
+                                        <div class="form-group">
+                                            <input type="text" id="share_user_id" class="form-control" placeholder="Enter UserID or Email">
+                                        </div>
+                                        <div class="form-group">
+                                            <select id="share_access_level" class="form-control">
+                                                <option value="RO">Read Only</option>
+                                                <option value="RW">Read & Write</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-primary" onclick="shareChecklist()">Share</button>
+                                        </div>
+                                    </div>
+                        
+                                    <!-- Display shared users -->
+                                    <div id="shared-users">
+                                        <% if (checklist && checklist.checklist_shared_with && checklist.checklist_shared_with.length > 0) { %>
+                                            <label>Shared with:</label>
+                        
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="access-table">User ID</th>
+                                                        <th class="access-table">Access Level</th>
+                                                        <th class="access-table">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>  
+                                                    <% checklist.checklist_shared_with.forEach(user => { %>
+                                                        <tr>
+                                                            <td><%= user.share_user_id.user_id %></td>
+                                                            <td>
+                                                                <%= user.share_access_level === "RO" ? "Read Only" : user.share_access_level === "RW" ? "Read & Write" : "N/A" %>
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-danger btn-xs" onclick="unshareChecklist('<%= user.share_user_id.user_id %>')">
+                                                                    <i class="fa fa-times"></i> Remove
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    <% }) %>
+                                                </tbody>
+                                            </table>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+
+                        <% } %>
+                        
+                    </div>
+                    
+
                 </div>
             </div>
         </div>
@@ -90,6 +169,58 @@
             <input type="text" name="checklist_items[]" class="form-control" placeholder="Item" required>
         `;
         container.appendChild(newInput);
+    }
+
+    function shareChecklist() {
+        const checklist_id = document.getElementById("checklist_id").value;
+        const share_user_id = document.getElementById("share_user_id").value;
+        const share_access_level = document.getElementById("share_access_level").value;
+
+        if (!share_user_id) {
+            alert("Please enter a UserID or Email address.");
+            return;
+        }
+
+        fetch("/checklists/share/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                checklist_id : checklist_id,
+                share_user_id: share_user_id,
+                share_access_level: share_access_level
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(err => console.error("Error:", err));
+    }
+
+    function unshareChecklist(unshare_user_id) {
+        const checklist_id = document.getElementById("checklist_id").value;
+
+        fetch("/checklists/unshare/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                checklist_id : checklist_id,
+                unshare_user_id: unshare_user_id
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(err => console.error("Error:", err));
     }
 </script>
 
