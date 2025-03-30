@@ -5,8 +5,10 @@ exports.renderDashboard = async (req, res) => {
         console.log("renderDashboard() :: Function called");
     
         return res.render("dashboard", {
-            site_title: process.env.SITE_TITLE,
-            user_id: req.session.user_id
+            SITE_TITLE: process.env.SITE_TITLE,
+            STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+            STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+            session_user_id: req.session.session_user_id
         });
 
     } catch (error) {

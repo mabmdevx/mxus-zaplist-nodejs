@@ -110,3 +110,8 @@ fieldset {
     padding: 5px;
 }
 */
+
+.access-table {
+	background-color: #f5f5f5;
+	font-weight: normal;
+}

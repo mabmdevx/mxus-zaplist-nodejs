@@ -17,6 +17,11 @@ const ChecklistSchema = new mongoose.Schema({
     checklist_url_slug: { type: String, unique: true, required: true },
     checklist_is_public: { type: Boolean, default: false },
     checklist_items: [ChecklistItemSchema],
+    checklist_shared_with: [{
+        _id: { type: String, default: uuidv4 }, // Unique ID for each share
+        share_user_id: { type: String, ref: "User" },
+        share_access_level: { type: String, enum: ["RO", "RW"], default: "RW" }
+    }],
     created_by: { type: String, ref: "User", required: true }, // References User using UUID
     updated_by: { type: String, ref: "User", required: true }, // References User using UUID
     is_deleted: { type: Boolean, default: false },
