@@ -55,17 +55,23 @@
                             <button type="button" class="btn btn-outline btn-info btn-sm" onclick="addItem()">Add More Items</button>
                             <br/><br/>
 
-                            <div class="form-group">
-                                <label>Make Public?</label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="checklist_is_public" id="checklist_is_public1" value="true"
-                                        <%= checklist && checklist.checklist_is_public === true ? "checked" : "" %>>Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="checklist_is_public" id="checklist_is_public2" value="false"
-                                        <%= !checklist || checklist.checklist_is_public === false ? "checked" : "" %>>No
-                                </label>
-                            </div>                            
+                            <% if (checklist && checklist.created_by !== session_user_system_id) { %>
+                                <div class="alert alert-info">
+                                    Note: Only the checklist owner can make this checklist public.
+                                </div>
+                            <% } else { %>
+                                <div class="form-group">
+                                    <label>Make Public?</label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="checklist_is_public" id="checklist_is_public1" value="true"
+                                            <%= checklist && checklist.checklist_is_public === true ? "checked" : "" %>>Yes
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="checklist_is_public" id="checklist_is_public2" value="false"
+                                            <%= !checklist || checklist.checklist_is_public === false ? "checked" : "" %>>No
+                                    </label>
+                                </div>
+                            <% } %>                                                        
 
                             <!-- Hidden field -->
                             <% if (checklist && checklist._id) { %>

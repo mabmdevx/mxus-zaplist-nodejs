@@ -22,13 +22,15 @@ exports.renderListMyOwnedChecklists = async (req, res) => {
             };
         });
 
-        console.log("renderListMyOwnedChecklists() :: my_checklists_with_shared_flag: ", my_checklists_with_shared_flag);
+        // Commented out - For testing and debugging only
+        //console.log("renderListMyOwnedChecklists() :: my_checklists_with_shared_flag: ", my_checklists_with_shared_flag);
 
         return res.render("checklist_list_mine", {
             SITE_TITLE: process.env.SITE_TITLE,
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
-            session_user_id: req.session.session_user_id,
+            session_user_id: session_user_id,
+            session_user_system_id: session_user_system_id,
             my_checklists: my_checklists_with_shared_flag
         });
 
@@ -65,14 +67,15 @@ exports.renderListMySharedChecklists = async (req, res) => {
             select: "_id user_id user_email"
         });
         
-        console.log("renderListMySharedChecklists() :: my_shared_checklists: ", JSON.stringify(my_shared_checklists, null, 2));
+        // Commented out - For testing and debugging only
+        //console.log("renderListMySharedChecklists() :: my_shared_checklists: ", JSON.stringify(my_shared_checklists, null, 2));
 
         return res.render("checklist_list_shared", {
             SITE_TITLE: process.env.SITE_TITLE,
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
-            session_user_id: req.session.session_user_id,
-            session_user_system_id: req.session.session_user_system_id,
+            session_user_id: session_user_id,
+            session_user_system_id: session_user_system_id,
             my_shared_checklists: my_shared_checklists
         });
 
@@ -86,6 +89,7 @@ exports.renderCreateChecklistPage = (req, res) => {
         console.log("renderCreateChecklistPage() :: Function called");
 
         const session_user_id = req.session.session_user_id;
+        const session_user_system_id = req.session.session_user_system_id;
 
         console.log("renderCreateChecklistPage() :: session_user_id: " + session_user_id);
 
@@ -94,6 +98,7 @@ exports.renderCreateChecklistPage = (req, res) => {
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             session_user_id: session_user_id,
+            session_user_system_id: session_user_system_id,
             checklist: null,
             edit_mode: false
         });
@@ -165,7 +170,8 @@ exports.renderUpdateChecklistPage = async (req, res) => {
             select: "_id user_id user_email"
         })
  
-        console.log("renderUpdateChecklistPage() :: checklist: ", JSON.stringify(checklist, null, 2));
+        // Commented out - For testing and debugging only
+        //console.log("renderUpdateChecklistPage() :: checklist: ", JSON.stringify(checklist, null, 2));
 
         if (!checklist) {
             return res.render("error_general_auth", {
@@ -180,21 +186,22 @@ exports.renderUpdateChecklistPage = async (req, res) => {
         }
 
         // Check if the logged-in user is the owner
-        const is_checklist_owner = checklist.created_by.toString() === session_user_system_id;
-        console.log("renderUpdateChecklistPage() :: is_checklist_owner: " + is_checklist_owner);
+        const session_user_is_checklist_owner = checklist.created_by.toString() === session_user_system_id;
+        console.log("renderUpdateChecklistPage() :: session_user_is_checklist_owner: " + session_user_is_checklist_owner);
 
         // Check if the checklist is shared with the logged-in user
-        const checklist_shared_with_user = checklist.checklist_shared_with.find(
+        const checklist_shared_with_session_user = checklist.checklist_shared_with.find(
             (share) => share.share_user_id && share.share_user_id._id && share.share_user_id._id.toString() === session_user_system_id
         );
-        console.log("renderUpdateChecklistPage() :: checklist_shared_with_user: " + checklist_shared_with_user);
+        // Commented out - For testing and debugging only
+        //console.log("renderUpdateChecklistPage() :: checklist_shared_with_session_user: " + checklist_shared_with_session_user);
 
         // Determine if the user has RW (Read & Write) permission
-        const has_shared_checklist_write_access = checklist_shared_with_user && checklist_shared_with_user.share_access_level === "RW";
+        const has_shared_checklist_write_access = checklist_shared_with_session_user && checklist_shared_with_session_user.share_access_level === "RW";
         console.log("renderUpdateChecklistPage() :: has_shared_checklist_write_access: " + has_shared_checklist_write_access);
 
         // If the user is not the owner and the checklist is not shared with the user, deny access
-        if (is_checklist_owner === false && has_shared_checklist_write_access === false) {
+        if (session_user_is_checklist_owner === false && has_shared_checklist_write_access === false) {
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -257,21 +264,22 @@ exports.updateChecklist = async (req, res) => {
         // # Start: Security check {
 
         // Check if the logged-in user is the owner
-        const is_checklist_owner = checklist.created_by.toString() === session_user_system_id;
-        console.log("updateChecklist() :: is_checklist_owner: " + is_checklist_owner);
+        const session_user_is_checklist_owner = checklist.created_by.toString() === session_user_system_id;
+        console.log("updateChecklist() :: session_user_is_checklist_owner: " + session_user_is_checklist_owner);
 
         // Check if the checklist is shared with the logged-in user
-        const checklist_shared_with_user = checklist.checklist_shared_with.find(
+        const checklist_shared_with_session_user = checklist.checklist_shared_with.find(
             (share) => share.share_user_id && share.share_user_id._id.toString() === session_user_system_id
         );
-        console.log("updateChecklist() :: checklist_shared_with_user: ", checklist_shared_with_user);
+        // Commented out - For testing and debugging only
+        //console.log("updateChecklist() :: checklist_shared_with_session_user: ", checklist_shared_with_session_user);
 
         // Determine if the user has RW (Read & Write) permission
-        const has_shared_checklist_write_access = checklist_shared_with_user && checklist_shared_with_user.share_access_level === "RW";
+        const has_shared_checklist_write_access = checklist_shared_with_session_user && checklist_shared_with_session_user.share_access_level === "RW";
         console.log("updateChecklist() :: has_shared_checklist_write_access: " + has_shared_checklist_write_access);
 
         // If the user is not the owner and the checklist is not shared with the user, deny access
-        if (is_checklist_owner === false && has_shared_checklist_write_access === false) {
+        if (session_user_is_checklist_owner === false && has_shared_checklist_write_access === false) {
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -344,17 +352,18 @@ exports.renderViewChecklistPage = async (req, res) => {
         }
 
         // Check if the logged-in user is the owner
-        const is_checklist_owner = checklist.created_by.toString() === session_user_system_id;
-        console.log("renderViewChecklistPage() :: is_checklist_owner: " + is_checklist_owner);
+        const session_user_is_checklist_owner = checklist.created_by.toString() === session_user_system_id;
+        console.log("renderViewChecklistPage() :: session_user_is_checklist_owner: " + session_user_is_checklist_owner);
 
         // Check if the checklist is shared with the logged-in user
-        const checklist_shared_with_user = checklist.checklist_shared_with.find(
+        const checklist_shared_with_session_user = checklist.checklist_shared_with.find(
             (share) => share.share_user_id && share.share_user_id._id && share.share_user_id._id.toString() === session_user_system_id
         );
-        console.log("renderViewChecklistPage() :: checklist_shared_with_user: ", checklist_shared_with_user);
+        // Commented out - For testing and debugging only
+        //console.log("renderViewChecklistPage() :: checklist_shared_with_session_user: ", checklist_shared_with_session_user);
 
         // If the user is not the owner and the checklist is not shared with the user, deny access
-        if (is_checklist_owner === false && !checklist_shared_with_user) {
+        if (session_user_is_checklist_owner === false && !checklist_shared_with_session_user) {
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -458,16 +467,28 @@ exports.renderSharedChecklistPage = async (req, res) => {
         console.log("renderSharedChecklistPage() :: Function called");
 
         const url_slug = req.params.url_slug;
+        const session_user_id = req.session.session_user_id;
+        const session_user_system_id = req.session.session_user_system_id;
 
         console.log("renderSharedChecklistPage() :: url_slug: " + url_slug);
+        console.log("renderSharedChecklistPage() :: session_user_id: " + session_user_id);
+        console.log("renderSharedChecklistPage() :: session_user_system_id: " + session_user_system_id);
 
-        const checklist = await Checklist.findOne({ checklist_url_slug: url_slug, is_deleted: false });
+        // Fetch the checklist and populate share list with user object
+        const checklist = await Checklist.findOne({ checklist_url_slug: url_slug, is_deleted: false })
+        .populate({
+            path: "checklist_shared_with.share_user_id",
+            model: "User",
+            select: "_id user_id user_email"
+        })
 
         if (!checklist){
-            return res.status(404).render("error_general_unauth", {
+            return res.render("error_general_unauth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+                session_user_id: session_user_id,
+                session_user_system_id: session_user_system_id,
                 error_title: 'Error',
                 error_msg: 'Checklist not found'
             });
@@ -475,16 +496,29 @@ exports.renderSharedChecklistPage = async (req, res) => {
 
         // Check if the checklist is public or the user is logged in
         const checklist_is_public = checklist.checklist_is_public;
-        const user_is_authenticated = req.session && req.session.session_user_id;
+        console.log("renderViewChecklistPage() :: checklist_is_public: " + checklist_is_public);
 
-        // If the checklist is private and the user is not logged in, show access denied
-        if (!checklist_is_public && !user_is_authenticated) {
-            return res.status(403).render("error_general_unauth", {
+        // Check if the logged-in user is the owner
+        const session_user_is_checklist_owner = checklist.created_by.toString() === session_user_system_id;
+        console.log("renderViewChecklistPage() :: session_user_is_checklist_owner: " + session_user_is_checklist_owner);
+
+        // Check if the checklist is shared with the logged-in user
+        const checklist_shared_with_session_user = checklist.checklist_shared_with.find(
+            (share) => share.share_user_id && share.share_user_id._id && share.share_user_id._id.toString() === session_user_system_id
+        );
+        // Commented out - For testing and debugging only
+        //console.log("renderViewChecklistPage() :: checklist_shared_with_session_user: ", checklist_shared_with_session_user);
+
+        // If the user is not the owner and the checklist is not shared with the user, deny access
+        if (checklist_is_public === false && session_user_is_checklist_owner === false && !checklist_shared_with_session_user) {
+            return res.render("error_general_unauth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+                session_user_id: session_user_id,
+                session_user_system_id: session_user_system_id,
                 error_title: 'Access Denied',
-                error_msg: "You do not have permission to view this checklist."
+                error_msg: 'You do not have permission to view this checklist.'
             });
         }
 
@@ -531,19 +565,20 @@ exports.shareChecklist = async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        /*
+        // Verify the checkout has not been shared already to avoid data issues
         if (checklist.checklist_shared_with.find(
-            (shared) => shared.user.toString() === user_to_share._id.toString()
+            (shared) => shared.share_user_id.toString() === user_to_share._id.toString()
         )) {
             return res.status(400).json({ success: false, message: "Already shared with this user" });
         }
-        */
 
-
+        // Add share permissions to the checklist object
         checklist.checklist_shared_with.push({
             share_user_id: user_to_share._id,
             share_access_level: share_access_level
         });
+
+        // Save the checklist
         await checklist.save();
 
         res.json({ success: true, message: "Checklist shared successfully" });
@@ -567,12 +602,12 @@ exports.unshareChecklist = async (req, res) => {
         console.log("unshareChecklist() :: session_user_id: " + session_user_id);
         console.log("unshareChecklist() :: session_user_system_id: " + session_user_system_id);
 
+        // Fetch the checklist and populate share list with user object
         const checklist = await Checklist.findOne({ _id: checklist_id, created_by: session_user_system_id, is_deleted: false })
         .populate({
             path: "checklist_shared_with.share_user_id",
             model: "User",
             select: "_id user_id user_email"
-
         })
         
         if (!checklist) {
@@ -581,7 +616,10 @@ exports.unshareChecklist = async (req, res) => {
 
         // Filter based on the `_id` property of the populated user documents
         checklist.checklist_shared_with = checklist.checklist_shared_with.filter(user => user.share_user_id.user_id.toString() !== unshare_user_id);
+        // Commented out - For testing and debugging only
         //console.log("unshareChecklist() :: checklist: ", checklist)
+        
+        // Save the checklist
         await checklist.save();
 
         res.json({ success: true, message: "User removed from shared list" });
