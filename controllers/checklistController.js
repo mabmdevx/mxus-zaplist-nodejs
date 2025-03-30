@@ -100,7 +100,8 @@ exports.renderCreateChecklistPage = (req, res) => {
             session_user_id: session_user_id,
             session_user_system_id: session_user_system_id,
             checklist: null,
-            edit_mode: false
+            edit_mode: false,
+            source_page: null
         });
 
     } catch (error) {
