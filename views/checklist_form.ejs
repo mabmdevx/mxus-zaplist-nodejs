@@ -78,6 +78,11 @@
                             <input id="checklist_id" name="checklist_id" type="hidden" value="<%= checklist._id %>">
                             <% } %>
 
+                            <!-- Hidden field -->
+                            <% if (source_page) { %>
+                            <input id="source_page" name="source_page" type="hidden" value="<%= source_page %>">
+                            <% } %>
+
                             <!-- Hidden field for POST action type -->
                             <input name="postback_checklist" type="hidden" value="<%= checklist ? 'update' : 'create' %>">
 

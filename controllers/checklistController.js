@@ -143,7 +143,9 @@ exports.createChecklist = async (req, res) => {
             is_deleted: false
         });
 
+        // Save the checklist
         await checklist.save();
+        console.log("createChecklist() :: Success - Checklist created successfully");
         res.redirect("/my-checklists");
     } catch (error) {
         errorHandler(error, req, res);
@@ -157,10 +159,12 @@ exports.renderUpdateChecklistPage = async (req, res) => {
         const checklist_id = req.params.checklist_id;
         const session_user_id = req.session.session_user_id;
         const session_user_system_id = req.session.session_user_system_id;
+        const source_page = req.query.source_page;
 
         console.log("renderUpdateChecklistPage() :: checklist_id: " + checklist_id);
         console.log("renderUpdateChecklistPage() :: session_user_id: " + session_user_id);
         console.log("renderUpdateChecklistPage() :: session_user_system_id: " + session_user_system_id);
+        console.log("renderUpdateChecklistPage() :: source_page: " + source_page);
 
         // Fetch the checklist and populate share list with user object
         const checklist = await Checklist.findOne({ _id: checklist_id, is_deleted: false })
@@ -220,7 +224,8 @@ exports.renderUpdateChecklistPage = async (req, res) => {
             session_user_id: session_user_id,
             session_user_system_id: session_user_system_id,
             checklist: checklist,
-            edit_mode: true
+            edit_mode: true,
+            source_page: source_page
         });
 
     } catch (error) {
@@ -232,7 +237,8 @@ exports.updateChecklist = async (req, res) => {
     try {
         console.log("updateChecklist() :: Function called");
 
-        const { checklist_title, checklist_type, checklist_is_public, checklist_items } = req.body;
+        const { checklist_title, checklist_type, checklist_is_public, checklist_items, source_page } = req.body;
+
         const checklist_id = req.params.checklist_id;
         const session_user_id = req.session.session_user_id;
         const session_user_system_id = req.session.session_user_system_id;
@@ -240,6 +246,7 @@ exports.updateChecklist = async (req, res) => {
         console.log("updateChecklist() :: checklist_id: " + checklist_id);
         console.log("updateChecklist() :: session_user_id: " + session_user_id);
         console.log("updateChecklist() :: session_user_system_id: " + session_user_system_id);
+        console.log("updateChecklist() :: source_page: " + source_page);
 
         // Fetch the checklist and populate share list with user object
         const checklist = await Checklist.findOne({ _id: checklist_id, is_deleted: false })
@@ -313,7 +320,15 @@ exports.updateChecklist = async (req, res) => {
             updated_by: session_user_system_id
         });
 
-        res.redirect("/my-checklists");
+        console.log("createChecklist() :: Success - Checklist updated successfully");
+
+        // Redirect after completion
+        if(source_page === "my-shared-checklists"){
+            res.redirect("/my-shared-checklists");
+        } else {
+            res.redirect("/my-checklists");
+        }
+
     } catch (error) {
         errorHandler(error, req, res);
     }
@@ -446,15 +461,16 @@ exports.toggleItemCompletion = async (req, res) => {
         const { checklist_id, item_id } = req.params;
         const { is_completed } = req.body;
 
-        console.log("toggleItemCompletion() :: checklist_id: " + checklist_id)
-        console.log("toggleItemCompletion() :: item_id: " + item_id)
-        console.log("toggleItemCompletion() :: is_completed: " + is_completed)
+        console.log("toggleItemCompletion() :: checklist_id: " + checklist_id);
+        console.log("toggleItemCompletion() :: item_id: " + item_id);
+        console.log("toggleItemCompletion() :: is_completed: " + is_completed);
 
         await Checklist.updateOne(
             { _id: checklist_id, "checklist_items._id": item_id },
             { $set: { "checklist_items.$.is_completed": is_completed } }
         );
 
+        console.log("toggleItemCompletion() :: Success - Item completion status updated");
         res.status(200).json({ message: "Item completion status updated." });
     } catch (error) {
         console.error("Error updating item completion status:", error);
@@ -552,6 +568,7 @@ exports.shareChecklist = async (req, res) => {
         const checklist = await Checklist.findOne({ _id: checklist_id, created_by: session_user_system_id, is_deleted: false });
 
         if (!checklist) {
+            console.log("shareChecklist() :: Error - Access denied");
             return res.status(403).json({ success: false, message: "Access denied" });
         }
 
@@ -559,9 +576,11 @@ exports.shareChecklist = async (req, res) => {
             $or: [{ user_email: share_user_id }, { user_id: share_user_id }]
         });
 
-        console.log("shareChecklist() :: user_to_share: ", user_to_share);
+        // Commented out - For testing and debugging only
+        //console.log("shareChecklist() :: user_to_share: ", user_to_share);
         
         if (!user_to_share) {
+            console.log("shareChecklist() :: Error - User not found");
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
@@ -569,7 +588,14 @@ exports.shareChecklist = async (req, res) => {
         if (checklist.checklist_shared_with.find(
             (shared) => shared.share_user_id.toString() === user_to_share._id.toString()
         )) {
-            return res.status(400).json({ success: false, message: "Already shared with this user" });
+            console.log("shareChecklist() :: Error - Checklist has already been shared with this user");
+            return res.status(400).json({ success: false, message: "Checklist has already been shared with this user" });
+        }
+
+        // Verify user cannot share the checklist with themselves to avoid data issues
+        if (session_user_system_id === user_to_share._id.toString()) {
+            console.log("shareChecklist() :: Error - Checklist cannot be shared with yourself");
+            return res.status(400).json({ success: false, message: "Checklist cannot be shared with yourself" });
         }
 
         // Add share permissions to the checklist object
@@ -581,6 +607,7 @@ exports.shareChecklist = async (req, res) => {
         // Save the checklist
         await checklist.save();
 
+        console.log("shareChecklist() :: Success - Checklist shared successfully");
         res.json({ success: true, message: "Checklist shared successfully" });
 
     } catch (error) {
@@ -611,6 +638,7 @@ exports.unshareChecklist = async (req, res) => {
         })
         
         if (!checklist) {
+            console.log("unshareChecklist() :: Error - Access denied");
             return res.status(403).json({ success: false, message: "Access denied" });
         }
 
@@ -622,6 +650,7 @@ exports.unshareChecklist = async (req, res) => {
         // Save the checklist
         await checklist.save();
 
+        console.log("unshareChecklist() :: Success - User removed from shared list");
         res.json({ success: true, message: "User removed from shared list" });
 
     } catch (error) {
