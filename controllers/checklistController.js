@@ -14,8 +14,8 @@ exports.renderListMyOwnedChecklists = async (req, res) => {
 
         const my_checklists = await Checklist.find({ created_by: session_user_system_id, is_deleted: false });
 
-        // Add is_shared attribute
-        const my_checklists_with_shared_flag = my_checklists.map(checklist => {
+        // Add checklist_is_shared attribute attribute
+        const my_checklists_with_additions = my_checklists.map(checklist => {
             return {
                 ...checklist.toObject(),
                 checklist_is_shared: checklist.checklist_shared_with.length > 0
@@ -23,7 +23,15 @@ exports.renderListMyOwnedChecklists = async (req, res) => {
         });
 
         // Commented out - For testing and debugging only
-        //console.log("renderListMyOwnedChecklists() :: my_checklists_with_shared_flag: ", my_checklists_with_shared_flag);
+        //console.log("renderListMyOwnedChecklists() :: my_checklists_with_additions for checklist_is_shared : ", my_checklists_with_additions);
+
+        // Add `checklist_is_completed` attribute
+        my_checklists_with_additions.forEach(checklist => {
+            checklist.checklist_is_completed = checklist.checklist_items.every(item => item.is_completed);
+        });
+
+        // Commented out - For testing and debugging only
+        //console.log("renderListMyOwnedChecklists() :: my_checklists_with_additions for checklist_is_completed : ", my_checklists_with_additions);
 
         return res.render("checklist_list_mine", {
             SITE_TITLE: process.env.SITE_TITLE,
@@ -31,7 +39,7 @@ exports.renderListMyOwnedChecklists = async (req, res) => {
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             session_user_id: session_user_id,
             session_user_system_id: session_user_system_id,
-            my_checklists: my_checklists_with_shared_flag
+            my_checklists: my_checklists_with_additions
         });
 
     } catch (error) {
@@ -69,6 +77,14 @@ exports.renderListMySharedChecklists = async (req, res) => {
         
         // Commented out - For testing and debugging only
         //console.log("renderListMySharedChecklists() :: my_shared_checklists: ", JSON.stringify(my_shared_checklists, null, 2));
+
+        // Add `checklist_is_completed` attribute
+        my_shared_checklists.forEach(checklist => {
+            checklist.checklist_is_completed = checklist.checklist_items.every(item => item.is_completed);
+        });
+
+        // Commented out - For testing and debugging only
+        //console.log("renderListMySharedChecklists() :: my_shared_checklists for checklist_is_completed : ", JSON.stringify(my_shared_checklists, null, 2));
 
         return res.render("checklist_list_shared", {
             SITE_TITLE: process.env.SITE_TITLE,

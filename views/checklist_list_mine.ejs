@@ -15,6 +15,7 @@
                             <tr>
                                 <th>Title</th>
                                 <th>Type</th>
+                                <th>Is Completed</th>
                                 <th>Is Shared</th>
                                 <th>Is Public</th>
                                 <th>Update</th>
@@ -27,8 +28,17 @@
                             <% if (my_checklists && my_checklists.length) { %>
                                 <% my_checklists.forEach(checklist => { %>
                                     <tr>
-                                        <td><%= checklist.checklist_title %></td>
+                                        <td style="<%= checklist.checklist_is_completed ? 'text-decoration: line-through;' : '' %>">
+                                            <%= checklist.checklist_title %>
+                                        </td>
                                         <td><%= checklist.checklist_type %></td>
+                                        <td>
+                                            <% if (checklist && checklist.checklist_is_completed) { %>
+                                                <i class="fa fa-check"></i> <!-- Public (check) -->
+                                            <% } else { %>
+                                                <i class="fa fa-times"></i> <!-- Private (cross) -->
+                                            <% } %>
+                                        </td>
                                         <td>
                                             <% if (checklist && checklist.checklist_is_shared) { %>
                                                 <i class="fa fa-check"></i> <!-- Public (check) -->

@@ -18,6 +18,7 @@
                                 <th>Type</th>
                                 <th>Owner</th>
                                 <th>Access</th>
+                                <th>Is Completed</th>
                                 <th>Update</th>
                                 <th>View</th>
                                 <th>Share URL</th>
@@ -27,7 +28,9 @@
                             <% if (my_shared_checklists && my_shared_checklists.length) { %>
                                 <% my_shared_checklists.forEach(checklist => { %>
                                     <tr>
-                                        <td><%= checklist.checklist_title %></td>
+                                        <td style="<%= checklist.checklist_is_completed ? 'text-decoration: line-through;' : '' %>">
+                                            <%= checklist.checklist_title %>
+                                        </td>
                                         <td><%= checklist.checklist_type %></td>
                                         <td><%= checklist.created_by.user_id %></td>
                                         <td>
@@ -39,6 +42,13 @@
                                             <%= checklist_user_access_level.share_access_level === "RW" ? "Read & Write" : "Read Only" %>
                                             <% } else { %>
                                                 N/A
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (checklist && checklist.checklist_is_completed) { %>
+                                                <i class="fa fa-check"></i> <!-- Public (check) -->
+                                            <% } else { %>
+                                                <i class="fa fa-times"></i> <!-- Private (cross) -->
                                             <% } %>
                                         </td>
                                         <td>
