@@ -1,5 +1,5 @@
 ### ZapList
-A checklist app written in NodeJS using MongoDB as the database
+ZapList - A checklist app written in NodeJS with MongoDB as the database
 
 #### Features
 - Signup new users to the app
@@ -7,6 +7,7 @@ A checklist app written in NodeJS using MongoDB as the database
 - Create / update / delete Checklists
 - Auto-save updates to the Checklist when the item is marked complete or incomplete
 - Make a checklist public without needing authentication and share the unique checklist url
+- Share a checklist with another user using UserID or Email
 
 
 #### How to setup in Development Environment
