@@ -20,6 +20,8 @@ function errorHandler(error, req, res) {
     // Render error page
     return res.render('error_general_unauth', {
         SITE_TITLE: process.env.SITE_TITLE,
+        STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+        STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
         error_title: 'Error',
         error_msg: 'Oops! Something went wrong.'
     });
