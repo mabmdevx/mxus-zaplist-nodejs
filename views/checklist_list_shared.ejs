@@ -19,6 +19,7 @@
                                 <th>Owner</th>
                                 <th>Access</th>
                                 <th>Is Completed</th>
+                                <th>Is Public</th>
                                 <th>Update</th>
                                 <th>View</th>
                                 <th>Share URL</th>
@@ -46,6 +47,13 @@
                                         </td>
                                         <td>
                                             <% if (checklist && checklist.checklist_is_completed) { %>
+                                                <i class="fa fa-check"></i> <!-- Public (check) -->
+                                            <% } else { %>
+                                                <i class="fa fa-times"></i> <!-- Private (cross) -->
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (checklist && checklist.checklist_is_public) { %>
                                                 <i class="fa fa-check"></i> <!-- Public (check) -->
                                             <% } else { %>
                                                 <i class="fa fa-times"></i> <!-- Private (cross) -->
