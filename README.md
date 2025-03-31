@@ -147,3 +147,33 @@ exit
 ```
 pm2 start app.js --name "zaplist"
 ```
+
+### Setup automated DB backup to Backblaze
+- Setup the Backblaze CLI
+```bash
+wget https://github.com/Backblaze/B2_Command_Line_Tool/releases/latest/download/b2-linux
+chmod +x b2-linux
+sudo mv b2-linux b2
+sudo mv b2 /usr/local/bin/
+b2 --version
+```
+
+- Set the credentials for Backblaze CLI
+```
+b2 account authorize
+```
+Then enter the keyID and applicationKey
+
+- Setup Crontab
+```bash
+crontab -e
+```
+
+- Configure crontab
+```
+# DB Backup: MongoDB Backups to B2 bucket
+5 0 * * * /opt/scripts/mongodb_backup/b2_backup_zaplist.sh
+
+# DB Backup: B2 bucket - Cleanup files older than 30 days
+10 0 * * * /opt/scripts/mongodb_backup/b2_cleanup_zaplist.sh
+```
