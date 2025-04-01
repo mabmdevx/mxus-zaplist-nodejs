@@ -11,7 +11,7 @@ exports.renderSignupPage = (req, res) => {
             SITE_TITLE: process.env.SITE_TITLE,
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
-            error_msg: ''
+            msg_error: ''
         });
 
     } catch (error) {
@@ -33,7 +33,7 @@ exports.signup = async (req, res) => {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
-                error_msg: "Missing data."
+                msg_error: "Missing data."
             });
         }
 
@@ -45,7 +45,7 @@ exports.signup = async (req, res) => {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
-                error_msg: 'Passwords do not match.'
+                msg_error: 'Passwords do not match.'
             });
         }
 
@@ -58,7 +58,7 @@ exports.signup = async (req, res) => {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
-                error_msg: 'UserID is already in use.'
+                msg_error: 'UserID is already in use.'
             });
         }
 
@@ -91,7 +91,7 @@ exports.renderLoginPage = (req, res) => {
             SITE_TITLE: process.env.SITE_TITLE,
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
-            error_msg: ''
+            msg_error: ''
         });
 
     } catch (error) {
@@ -113,7 +113,7 @@ exports.login = async (req, res) => {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
-                error_msg: "Invalid credentials"
+                msg_error: "Invalid credentials"
             });
         }
 
@@ -127,21 +127,21 @@ exports.login = async (req, res) => {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
-                error_msg: "Invalid credentials"
+                msg_error: "Invalid credentials"
             });
         }
 
         // Check if password is correct
-        const isMatch = await bcrypt.compare(app_user_password, user.user_password);
+        const password_is_match = await bcrypt.compare(app_user_password, user.user_password);
 
-        if (!isMatch) {
+        if (!password_is_match) {
             console.log("login() :: Invalid credentials - Invalid Password for user: " + app_user_id);
 
             return res.render("login", { 
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
-                error_msg: "Invalid credentials"
+                msg_error: "Invalid credentials"
             });
         } else {
             req.session.session_user_id = app_user_id; // Store user_id in session
@@ -156,6 +156,129 @@ exports.login = async (req, res) => {
     } catch (error) {
         errorHandler(error, req, res);
     }
+};
+
+exports.renderChangePasswordPage = async (req, res) => {
+    try{
+        console.log("renderChangePasswordPage() :: Function called");
+
+        const session_user_id = req.session.session_user_id;
+        const session_user_system_id = req.session.session_user_system_id;
+
+        console.log("renderChangePasswordPage() :: session_user_id: " + session_user_id);
+        console.log("renderChangePasswordPage() :: session_user_system_id: " + session_user_system_id);
+
+        res.render("change_password", { 
+            SITE_TITLE: process.env.SITE_TITLE,
+            STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+            STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+            session_user_id: session_user_id,
+            session_user_system_id: session_user_system_id,
+            msg_success: null, 
+            msg_error: null 
+        });
+
+    } catch (error) {
+        errorHandler(error, req, res);
+    }
+    
+};
+
+exports.changePassword = async (req, res) => {
+    try {
+        console.log("changePassword() :: Function called");
+
+        const { app_current_password, app_new_password, app_confirm_password } = req.body;
+
+        const session_user_id = req.session.session_user_id;
+        const session_user_system_id = req.session.session_user_system_id;
+
+        console.log("changePassword() :: session_user_id: " + session_user_id);
+        console.log("changePassword() :: session_user_system_id: " + session_user_system_id);
+
+        if (!app_current_password || !app_new_password || !app_confirm_password) {
+            console.log("changePassword() :: Error - All fields are required.");
+
+            return res.render("change_password", {
+                SITE_TITLE: process.env.SITE_TITLE,
+                STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+                STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+                session_user_id: session_user_id,
+                session_user_system_id: session_user_system_id,
+                msg_error: "All fields are required.", 
+                msg_success: null 
+            });
+        }
+
+        if (app_new_password !== app_confirm_password) {
+            console.log("changePassword() :: Error - New passwords do not match.");
+
+            return res.render("change_password", { 
+                SITE_TITLE: process.env.SITE_TITLE,
+                STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+                STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+                session_user_id: session_user_id,
+                session_user_system_id: session_user_system_id,
+                msg_error: "New passwords do not match.", 
+                msg_success: null
+             });
+        }
+
+
+        const user = await User.findOne({ user_id: session_user_id });
+
+        if (!user) {
+            console.log("changePassword() :: Error - User not found.");
+            
+            return res.render("change_password", { 
+                SITE_TITLE: process.env.SITE_TITLE,
+                STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+                STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+                session_user_id: session_user_id,
+                session_user_system_id: session_user_system_id,
+                msg_error: "User not found.",
+                msg_success: null
+            });
+        }
+
+        const password_is_match = await bcrypt.compare(app_current_password, user.user_password);
+
+        if (!password_is_match) {
+            console.log("changePassword() :: Error - Current password is incorrect.");
+
+            return res.render("change_password", { 
+                SITE_TITLE: process.env.SITE_TITLE,
+                STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+                STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+                session_user_id: session_user_id,
+                session_user_system_id: session_user_system_id,
+                msg_error: "Current password is incorrect.",
+                msg_success: null
+            });
+        }
+
+        const hashed_password = await bcrypt.hash(app_new_password, 10);
+        user.user_password = hashed_password;
+
+        // Save the Password
+        await user.save();
+
+        console.log("changePassword() :: Success - Password changed successfully.");
+
+        return res.render("change_password", { 
+            SITE_TITLE: process.env.SITE_TITLE,
+            STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+            STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+            session_user_id: session_user_id,
+            session_user_system_id: session_user_system_id,
+            msg_error: null, 
+            msg_success: "Password changed successfully."
+        });
+        
+    } catch (error) {
+        errorHandler(error, req, res);
+    }
+    
 };
 
 exports.logout = (req, res) => {

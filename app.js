@@ -80,12 +80,19 @@ app.get("/", (req, res) => {
 
 
 // Auth routes
+// Signup
 app.get('/signup', authController.renderSignupPage);
 app.post('/signup', authController.signup);
 
+// Login
 app.get('/login', authController.renderLoginPage);
 app.post('/login', authController.login);
 
+// Change Password
+app.get('/change-password', authController.renderChangePasswordPage);
+app.post('/change-password', authController.changePassword);
+
+// Logout
 app.get('/logout', authController.logout);
 
 

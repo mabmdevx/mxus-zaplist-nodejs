@@ -23,7 +23,7 @@ function errorHandler(error, req, res) {
         STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
         STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
         error_title: 'Error',
-        error_msg: 'Oops! Something went wrong.'
+        msg_error: 'Oops! Something went wrong.'
     });
 
 }

@@ -130,10 +130,12 @@ exports.createChecklist = async (req, res) => {
         console.log("createChecklist() :: Function called");
 
         const { checklist_title, checklist_type, checklist_is_public, checklist_items } = req.body;
+
         const session_user_id = req.session.session_user_id;
         const session_user_system_id = req.session.session_user_system_id;
 
         console.log("createChecklist() :: session_user_id: " + session_user_id);
+        console.log("createChecklist() :: session_user_system_id: " + session_user_system_id);
 
         // Generate unique slug for the new checklist
         const checklist_url_slug = await generateUniqueSlug();
@@ -195,6 +197,8 @@ exports.renderUpdateChecklistPage = async (req, res) => {
         //console.log("renderUpdateChecklistPage() :: checklist: ", JSON.stringify(checklist, null, 2));
 
         if (!checklist) {
+            console.log("renderUpdateChecklistPage() :: Error - Checklist not found.");
+
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -202,7 +206,7 @@ exports.renderUpdateChecklistPage = async (req, res) => {
                 session_user_id: session_user_id,
                 session_user_system_id: session_user_system_id,
                 error_title: 'Error',
-                error_msg: 'Checklist not found'
+                msg_error: 'Checklist not found.'
             });
         }
 
@@ -223,6 +227,8 @@ exports.renderUpdateChecklistPage = async (req, res) => {
 
         // If the user is not the owner and the checklist is not shared with the user, deny access
         if (session_user_is_checklist_owner === false && has_shared_checklist_write_access === false) {
+            console.log("renderUpdateChecklistPage() :: Error - You do not have permission to update this checklist.");
+
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -230,7 +236,7 @@ exports.renderUpdateChecklistPage = async (req, res) => {
                 session_user_id: session_user_id,
                 session_user_system_id: session_user_system_id,
                 error_title: 'Access Denied',
-                error_msg: 'You do not have permission to update this checklist.'
+                msg_error: 'You do not have permission to update this checklist.'
             });
         }
 
@@ -274,6 +280,8 @@ exports.updateChecklist = async (req, res) => {
         })
 
         if (!checklist) {
+            console.log("updateChecklist() :: Error - Checklist not found.");
+
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -281,7 +289,7 @@ exports.updateChecklist = async (req, res) => {
                 session_user_id: session_user_id,
                 session_user_system_id: session_user_system_id,
                 error_title: 'Error',
-                error_msg: 'Checklist not found'
+                msg_error: 'Checklist not found.'
             });
         }
 
@@ -304,6 +312,8 @@ exports.updateChecklist = async (req, res) => {
 
         // If the user is not the owner and the checklist is not shared with the user, deny access
         if (session_user_is_checklist_owner === false && has_shared_checklist_write_access === false) {
+            console.log("updateChecklist() :: Error - You do not have permission to update this checklist.");
+
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -311,7 +321,7 @@ exports.updateChecklist = async (req, res) => {
                 session_user_id: session_user_id,
                 session_user_system_id: session_user_system_id,
                 error_title: "Access Denied",
-                error_msg: "You do not have permission to update this checklist."
+                msg_error: "You do not have permission to update this checklist."
             });
         }
 
@@ -372,6 +382,8 @@ exports.renderViewChecklistPage = async (req, res) => {
         })
 
         if (!checklist){
+            console.log("renderViewChecklistPage() :: Error - Checklist not found.");
+
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -379,7 +391,7 @@ exports.renderViewChecklistPage = async (req, res) => {
                 session_user_id: session_user_id,
                 session_user_system_id: session_user_system_id,
                 error_title: 'Error',
-                error_msg: 'Checklist not found'
+                msg_error: 'Checklist not found.'
             });
         }
 
@@ -396,6 +408,8 @@ exports.renderViewChecklistPage = async (req, res) => {
 
         // If the user is not the owner and the checklist is not shared with the user, deny access
         if (session_user_is_checklist_owner === false && !checklist_shared_with_session_user) {
+            console.log("renderViewChecklistPage() :: Error - You do not have permission to view this checklist.");
+
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -403,7 +417,7 @@ exports.renderViewChecklistPage = async (req, res) => {
                 session_user_id: session_user_id,
                 session_user_system_id: session_user_system_id,
                 error_title: 'Access Denied',
-                error_msg: 'You do not have permission to view this checklist.'
+                msg_error: 'You do not have permission to view this checklist.'
             });
         }
 
@@ -432,12 +446,14 @@ exports.deleteChecklist = async (req, res) => {
 
         console.log("deleteChecklist() :: checklist_id: " + checklist_id);
         console.log("deleteChecklist() :: session_user_id: " + session_user_id);
-        console.log("updateChecklist() :: session_user_system_id: " + session_user_system_id);
+        console.log("deleteChecklist() :: session_user_system_id: " + session_user_system_id);
 
         // Fetch the checklist
         const checklist = await Checklist.findOne({ _id: checklist_id, is_deleted: false });
 
         if (!checklist) {
+            console.log("deleteChecklist() :: Error - Checklist not found.");
+
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -445,12 +461,14 @@ exports.deleteChecklist = async (req, res) => {
                 session_user_id: session_user_id,
                 session_user_system_id: session_user_system_id,
                 error_title: 'Error',
-                error_msg: 'Checklist not found'
+                msg_error: 'Checklist not found.'
             });
         }
 
         // Verify if the logged-in user is the checklist owner
         if (checklist.created_by.toString() !== session_user_system_id) {
+            console.log("deleteChecklist() :: Error - You do not have permission to delete this checklist.");
+
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -458,12 +476,14 @@ exports.deleteChecklist = async (req, res) => {
                 session_user_id: session_user_id,
                 session_user_system_id: session_user_system_id,
                 error_title: 'Access Denied',
-                error_msg: 'You do not have permission to delete this checklist.'
+                msg_error: 'You do not have permission to delete this checklist.'
             });
         }
 
         // Mark the checklist as deleted
         await Checklist.findOneAndUpdate({ _id: checklist_id }, { is_deleted: true });
+
+        console.log("deleteChecklist() :: Success - Checklist saved successfully.");
 
         res.redirect('/my-checklists');
     } catch (error) {
@@ -516,6 +536,8 @@ exports.renderSharedChecklistPage = async (req, res) => {
         })
 
         if (!checklist){
+            console.log("renderSharedChecklistPage() :: Error - Checklist not found.");
+
             return res.render("error_general_unauth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -523,27 +545,29 @@ exports.renderSharedChecklistPage = async (req, res) => {
                 session_user_id: session_user_id,
                 session_user_system_id: session_user_system_id,
                 error_title: 'Error',
-                error_msg: 'Checklist not found'
+                msg_error: 'Checklist not found.'
             });
         }
 
         // Check if the checklist is public or the user is logged in
         const checklist_is_public = checklist.checklist_is_public;
-        console.log("renderViewChecklistPage() :: checklist_is_public: " + checklist_is_public);
+        console.log("renderSharedChecklistPage() :: checklist_is_public: " + checklist_is_public);
 
         // Check if the logged-in user is the owner
         const session_user_is_checklist_owner = checklist.created_by.toString() === session_user_system_id;
-        console.log("renderViewChecklistPage() :: session_user_is_checklist_owner: " + session_user_is_checklist_owner);
+        console.log("renderSharedChecklistPage() :: session_user_is_checklist_owner: " + session_user_is_checklist_owner);
 
         // Check if the checklist is shared with the logged-in user
         const checklist_shared_with_session_user = checklist.checklist_shared_with.find(
             (share) => share.share_user_id && share.share_user_id._id && share.share_user_id._id.toString() === session_user_system_id
         );
         // Commented out - For testing and debugging only
-        //console.log("renderViewChecklistPage() :: checklist_shared_with_session_user: ", checklist_shared_with_session_user);
+        //console.log("renderSharedChecklistPage() :: checklist_shared_with_session_user: ", checklist_shared_with_session_user);
 
         // If the user is not the owner and the checklist is not shared with the user, deny access
         if (checklist_is_public === false && session_user_is_checklist_owner === false && !checklist_shared_with_session_user) {
+            console.log("renderSharedChecklistPage() :: Error - You do not have permission to view this checklist.");
+
             return res.render("error_general_unauth", {
                 SITE_TITLE: process.env.SITE_TITLE,
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
@@ -551,7 +575,7 @@ exports.renderSharedChecklistPage = async (req, res) => {
                 session_user_id: session_user_id,
                 session_user_system_id: session_user_system_id,
                 error_title: 'Access Denied',
-                error_msg: 'You do not have permission to view this checklist.'
+                msg_error: 'You do not have permission to view this checklist.'
             });
         }
 
