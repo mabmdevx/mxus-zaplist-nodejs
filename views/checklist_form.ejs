@@ -32,6 +32,8 @@
                                 <label class="form-label">Checklist Type</label>
                                 <select name="checklist_type" class="form-control" required>
                                     <option value="Groceries" <%= checklist && checklist.checklist_type === "Groceries" ? "selected" : "" %>>Groceries</option>
+                                    <option value="Bills" <%= checklist && checklist.checklist_type === "Bills" ? "selected" : "" %>>Bills</option>
+                                    <option value="Events" <%= checklist && checklist.checklist_type === "Events" ? "selected" : "" %>>Events</option>
                                     <option value="Travel" <%= checklist && checklist.checklist_type === "Travel" ? "selected" : "" %>>Travel</option>
                                     <option value="Work" <%= checklist && checklist.checklist_type === "Work" ? "selected" : "" %>>Work</option>
                                     <option value="Other" <%= checklist && checklist.checklist_type === "Other" ? "selected" : "" %>>Other</option>

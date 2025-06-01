@@ -271,6 +271,9 @@ exports.updateChecklist = async (req, res) => {
         console.log("updateChecklist() :: session_user_system_id: " + session_user_system_id);
         console.log("updateChecklist() :: source_page: " + source_page);
 
+        // Commented out - For testing only
+        //console.log("updateChecklist() :: checklist_items: ", checklist_items);
+
         // Fetch the checklist and populate share list with user object
         const checklist = await Checklist.findOne({ _id: checklist_id, is_deleted: false })
         .populate({
