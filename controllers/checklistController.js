@@ -141,15 +141,17 @@ exports.createChecklist = async (req, res) => {
         const checklist_url_slug = await generateUniqueSlug();
 
         // Prepare the checklist items array
-        const itemsArray = Array.isArray(checklist_items)
-            ? checklist_items.filter(item => item.trim() !== "").map(item => ({
-                item_name: item,
-                is_completed: false,
+        // Normalize items
+        const itemsRaw = req.body.checklist_items || [];
+        const itemsArray = Object.values(itemsRaw)
+            .filter(item => item.item_name && item.item_name.trim() !== "")
+            .map(item => ({
+                item_name: item.item_name.trim(),
+                is_completed: item.is_completed === "true" || item.is_completed === "on",
                 created_by: session_user_system_id,
                 updated_by: session_user_system_id,
                 is_deleted: false
-            }))
-            : [];
+            }));
 
         const checklist = new Checklist({
             checklist_title,
