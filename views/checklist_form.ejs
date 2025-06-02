@@ -45,10 +45,19 @@
                             <div id="items-container">
                                 <% 
                                     let items = checklist && checklist.checklist_items.length ? checklist.checklist_items : ["", "", "", "", ""]; 
-                                    items.forEach(item => { 
+                                    items.forEach((item, index) => {
                                 %>
-                                    <div class="form-group">
-                                        <input type="text" name="checklist_items[]" class="form-control" 
+                                    <div class="form-group input-group">
+                                        <span class="input-group-addon">
+                                            <input type="checkbox" 
+                                                name="checklist_items[<%= index %>][is_completed]"
+                                                class="item-checkbox" 
+                                                data-checklist-id="<%= checklist ? checklist._id : '' %>"
+                                                data-item-id="<%= item && item._id ? item._id : '' %>"
+                                                <%= item.is_completed ? 'checked' : '' %> 
+                                            >
+                                        </span>
+                                        <input type="text" name="checklist_items[<%= index %>][item_name]" class="form-control" 
                                             value="<%= item.item_name %>" placeholder="Item">
                                     </div>
                                 <% }) %>
@@ -174,13 +183,25 @@
 </div>
 
 <script>
+
     function addItem() {
+        let checklistItemIndex = document.querySelectorAll("#items-container .form-group").length;
         const container = document.getElementById("items-container");
+
         const newInput = document.createElement("div");
         newInput.classList.add("form-group");
+        newInput.classList.add("input-group");
+
         newInput.innerHTML = `
-            <input type="text" name="checklist_items[]" class="form-control" placeholder="Item">
+            <span class="input-group-addon">
+                <input type="checkbox" 
+                    name="checklist_items[${checklistItemIndex}][is_completed]"
+                    class="item-checkbox"
+                >
+            </span>
+            <input type="text" name="checklist_items[${checklistItemIndex}][item_name]" class="form-control" placeholder="Item">
         `;
+
         container.appendChild(newInput);
     }
 

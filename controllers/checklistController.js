@@ -260,7 +260,7 @@ exports.updateChecklist = async (req, res) => {
     try {
         console.log("updateChecklist() :: Function called");
 
-        const { checklist_title, checklist_type, checklist_is_public, checklist_items, source_page } = req.body;
+        const { checklist_title, checklist_type, checklist_is_public, checklist_items, checklist_items_is_completed, source_page } = req.body;
 
         const checklist_id = req.params.checklist_id;
         const session_user_id = req.session.session_user_id;
@@ -270,9 +270,7 @@ exports.updateChecklist = async (req, res) => {
         console.log("updateChecklist() :: session_user_id: " + session_user_id);
         console.log("updateChecklist() :: session_user_system_id: " + session_user_system_id);
         console.log("updateChecklist() :: source_page: " + source_page);
-
-        // Commented out - For testing only
-        //console.log("updateChecklist() :: checklist_items: ", checklist_items);
+        console.log("updateChecklist() :: checklist_items: ", checklist_items);
 
         // Fetch the checklist and populate share list with user object
         const checklist = await Checklist.findOne({ _id: checklist_id, is_deleted: false })
@@ -331,15 +329,17 @@ exports.updateChecklist = async (req, res) => {
         // # } End: Security Check
 
         // Prepare the checklist items array
-        const itemsArray = Array.isArray(checklist_items)
-            ? checklist_items.filter(item => item.trim() !== "").map(item => ({
-                item_name: item,
-                is_completed: false,
+        // Normalize items
+        const itemsRaw = req.body.checklist_items || [];
+        const itemsArray = Object.values(itemsRaw)
+            .filter(item => item.item_name && item.item_name.trim() !== "")
+            .map(item => ({
+                item_name: item.item_name.trim(),
+                is_completed: item.is_completed === "true" || item.is_completed === "on",
                 created_by: session_user_system_id,
                 updated_by: session_user_system_id,
                 is_deleted: false
-            }))
-            : [];
+            }));
 
         // Update the checklist
         await Checklist.findByIdAndUpdate(checklist_id, {
