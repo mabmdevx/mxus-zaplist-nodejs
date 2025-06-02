@@ -260,7 +260,7 @@ exports.updateChecklist = async (req, res) => {
     try {
         console.log("updateChecklist() :: Function called");
 
-        const { checklist_title, checklist_type, checklist_is_public, checklist_items, checklist_items_is_completed, source_page } = req.body;
+        const { checklist_title, checklist_type, checklist_is_public, checklist_items, source_page } = req.body;
 
         const checklist_id = req.params.checklist_id;
         const session_user_id = req.session.session_user_id;
