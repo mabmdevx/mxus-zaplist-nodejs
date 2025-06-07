@@ -27,7 +27,9 @@ exports.renderListMyOwnedChecklists = async (req, res) => {
 
         // Add `checklist_is_completed` attribute
         my_checklists_with_additions.forEach(checklist => {
-            checklist.checklist_is_completed = checklist.checklist_items.every(item => item.is_completed);
+            checklist.checklist_is_completed = checklist.checklist_items.every(
+                item => item.is_completed === "complete" || item.is_completed === "skipped"
+            );
         });
 
         // Commented out - For testing and debugging only
@@ -80,8 +82,11 @@ exports.renderListMySharedChecklists = async (req, res) => {
 
         // Add `checklist_is_completed` attribute
         my_shared_checklists.forEach(checklist => {
-            checklist.checklist_is_completed = checklist.checklist_items.every(item => item.is_completed);
+            checklist.checklist_is_completed = checklist.checklist_items.every(
+                item => item.is_completed === "complete" || item.is_completed === "skipped"
+            );
         });
+        
 
         // Commented out - For testing and debugging only
         //console.log("renderListMySharedChecklists() :: my_shared_checklists for checklist_is_completed : ", JSON.stringify(my_shared_checklists, null, 2));
