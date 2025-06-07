@@ -1,5 +1,20 @@
 <%- include("layouts/top_auth") %>
 
+<style>
+    .readonly-background {
+        background-color: #f7fbfb !important;
+    }
+
+    .marked-complete {
+        text-decoration: line-through;
+        background-color: #e1e1e1 !important;
+    }
+
+    .marked-skipped {
+        background-color: #d8d0be !important;
+    }
+</style>
+
 <div class="row">
     <div class="col-lg-12">
         <h2 class="page-header"><%= checklist ? "Edit Checklist" : "Create Checklist" %></h2>
@@ -46,22 +61,28 @@
                                 <% 
                                     let items = checklist && checklist.checklist_items.length ? checklist.checklist_items : ["", "", "", "", ""]; 
                                     items.forEach((item, index) => {
+                                        const state = item.is_completed || "incomplete"; // fallback for blank inputs
                                 %>
                                     <div class="form-group input-group">
                                         <span class="input-group-addon">
+                                            <input type="hidden" 
+                                                name="checklist_items[<%= index %>][is_completed]" 
+                                                value="<%= state %>"
+                                            >
                                             <input type="checkbox" 
-                                                name="checklist_items[<%= index %>][is_completed]"
                                                 class="item-checkbox" 
-                                                data-checklist-id="<%= checklist ? checklist._id : '' %>"
-                                                data-item-id="<%= item && item._id ? item._id : '' %>"
-                                                <%= item.is_completed ? 'checked' : '' %> 
+                                                data-index="<%= index %>"
+                                                data-state="<%= state %>"
                                             >
                                         </span>
-                                        <input type="text" name="checklist_items[<%= index %>][item_name]" class="form-control" 
-                                            value="<%= item.item_name %>" placeholder="Item">
+                                        <input type="text" 
+                                            name="checklist_items[<%= index %>][item_name]" 
+                                            class="form-control item-text" 
+                                            value="<%= item.item_name || "" %>" placeholder="Item">
                                     </div>
                                 <% }) %>
                             </div>
+                            
 
                             <button type="button" class="btn btn-outline btn-info btn-sm" onclick="addItem()">Add More Items</button>
                             <br/><br/>
@@ -184,6 +205,72 @@
 
 <script>
 
+    document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+        const checkbox_initial_state = checkbox.dataset.state;
+        const checkbox_item_text = checkbox.closest('.input-group').querySelector('.item-text');
+        const checkbox_index = checkbox.dataset.index;
+        const checkbox_initial_hidden_input = document.querySelector(`input[name="checklist_items[${checkbox_index}][is_completed]"]`);
+
+        // Initialize based on data-state
+        if (checkbox_initial_state === "complete") {
+            checkbox.checked = true;
+            checkbox.indeterminate = false;
+            checkbox_initial_hidden_input.value = "complete";
+            checkbox_item_text.classList.add("marked-complete");
+        } else if (checkbox_initial_state === "skipped") {
+            checkbox.checked = false;
+            checkbox.indeterminate = true;
+            checkbox_initial_hidden_input.value = "skipped";
+            checkbox_item_text.classList.add("marked-skipped");
+        } else {
+            checkbox.checked = false;
+            checkbox.indeterminate = false;
+            checkbox_initial_hidden_input.value = "incomplete";
+            checkbox_item_text.classList.remove("marked-complete");
+            checkbox_item_text.classList.remove("marked-skipped");
+        }
+
+        /*
+        Note: The indeterminate state is not updated by user clicks — so we can't rely on checkbox.indeterminate to detect state transitions. 
+        Instead, we use dataset.state to keep track of what the last state was, and what the next state should be.
+        */
+
+        // Handle toggle
+        checkbox.addEventListener('click', function (event) {
+            let checkbox_current_state = this.dataset.state;
+            const checkbox_item_text = this.closest('.input-group').querySelector('.item-text');
+            const checkbox_index = this.dataset.index;
+            const checkbox_current_hidden_input = document.querySelector(`input[name="checklist_items[${checkbox_index}][is_completed]"]`);
+
+            if (checkbox_current_state === "incomplete") {
+                // Change state to complete
+                this.checked = true;
+                this.indeterminate = false;
+                this.dataset.state = "complete";
+                checkbox_current_hidden_input.value = "complete";
+                checkbox_item_text.classList.remove("marked-skipped");
+                checkbox_item_text.classList.add("marked-complete");
+            } else if (checkbox_current_state === "complete") {
+                // Change state to skipped
+                this.checked = false;
+                this.indeterminate = true;
+                this.dataset.state = "skipped";
+                checkbox_current_hidden_input.value = "skipped";
+                checkbox_item_text.classList.remove("marked-complete");
+                checkbox_item_text.classList.add("marked-skipped");
+            } else {
+                // Change state to incomplete
+                this.checked = false;
+                this.indeterminate = false;
+                this.dataset.state = "incomplete";
+                checkbox_current_hidden_input.value = "incomplete";
+                checkbox_item_text.classList.remove("marked-complete");
+                checkbox_item_text.classList.remove("marked-skipped");
+            }
+        });
+    });
+
+
     function addItem() {
         let checklistItemIndex = document.querySelectorAll("#items-container .form-group").length;
         const container = document.getElementById("items-container");
@@ -199,7 +286,7 @@
                     class="item-checkbox"
                 >
             </span>
-            <input type="text" name="checklist_items[${checklistItemIndex}][item_name]" class="form-control" placeholder="Item">
+            <input type="text" name="checklist_items[${checklistItemIndex}][item_name]" class="form-control item-text" placeholder="Item">
         `;
 
         container.appendChild(newInput);

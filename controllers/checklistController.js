@@ -274,6 +274,19 @@ exports.updateChecklist = async (req, res) => {
         console.log("updateChecklist() :: source_page: " + source_page);
         console.log("updateChecklist() :: checklist_items: ", checklist_items);
 
+        /*
+        Note
+        ----
+        Regarding: Checklist Item checkbox since we are using "indeterminate" checkbox state for "skipped" state
+
+        Instead of relying on the value of the checkbox itself, we are relying on the hidden input for the value.
+        The issue lies in how checkboxes work in plain HTML forms:
+        When a checkbox is checked, its value is sent ("on" or your custom value).
+        When it's unchecked, it's not sent at all.
+        When it's indeterminate, it's treated like unchecked — not sent either.
+        So if you're using <form> postback, you need hidden inputs to submit "skipped" or "unchecked" states explicitly.
+        */
+
         // Fetch the checklist and populate share list with user object
         const checklist = await Checklist.findOne({ _id: checklist_id, is_deleted: false })
         .populate({
@@ -337,11 +350,13 @@ exports.updateChecklist = async (req, res) => {
             .filter(item => item.item_name && item.item_name.trim() !== "")
             .map(item => ({
                 item_name: item.item_name.trim(),
-                is_completed: item.is_completed === "true" || item.is_completed === "on",
+                is_completed: item.is_completed,
                 created_by: session_user_system_id,
                 updated_by: session_user_system_id,
                 is_deleted: false
             }));
+
+        console.log("updateChecklist() :: itemsArray: ", itemsArray)
 
         // Update the checklist
         await Checklist.findByIdAndUpdate(checklist_id, {
@@ -352,7 +367,7 @@ exports.updateChecklist = async (req, res) => {
             updated_by: session_user_system_id
         });
 
-        console.log("createChecklist() :: Success - Checklist updated successfully");
+        console.log("updateChecklist() :: Success - Checklist updated successfully");
 
         // Redirect after completion
         if(source_page === "my-shared-checklists"){
@@ -501,15 +516,15 @@ exports.toggleItemCompletion = async (req, res) => {
         console.log("toggleItemCompletion() :: Function called");
 
         const { checklist_id, item_id } = req.params;
-        const { is_completed } = req.body;
+        const { status } = req.body;
 
         console.log("toggleItemCompletion() :: checklist_id: " + checklist_id);
         console.log("toggleItemCompletion() :: item_id: " + item_id);
-        console.log("toggleItemCompletion() :: is_completed: " + is_completed);
+        console.log("toggleItemCompletion() :: status: " + status);
 
         await Checklist.updateOne(
             { _id: checklist_id, "checklist_items._id": item_id },
-            { $set: { "checklist_items.$.is_completed": is_completed } }
+            { $set: { "checklist_items.$.is_completed": status } }
         );
 
         console.log("toggleItemCompletion() :: Success - Item completion status updated");
