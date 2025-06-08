@@ -141,6 +141,7 @@ exports.createChecklist = async (req, res) => {
 
         console.log("createChecklist() :: session_user_id: " + session_user_id);
         console.log("createChecklist() :: session_user_system_id: " + session_user_system_id);
+        console.log("createChecklist() :: checklist_items: ", checklist_items);
 
         // Generate unique slug for the new checklist
         const checklist_url_slug = await generateUniqueSlug();
@@ -152,11 +153,13 @@ exports.createChecklist = async (req, res) => {
             .filter(item => item.item_name && item.item_name.trim() !== "")
             .map(item => ({
                 item_name: item.item_name.trim(),
-                is_completed: item.is_completed === "true" || item.is_completed === "on",
+                is_completed: item.is_completed,
                 created_by: session_user_system_id,
                 updated_by: session_user_system_id,
                 is_deleted: false
             }));
+
+        console.log("createChecklist() :: itemsArray: ", itemsArray)
 
         const checklist = new Checklist({
             checklist_title,
