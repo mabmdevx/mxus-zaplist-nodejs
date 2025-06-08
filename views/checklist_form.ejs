@@ -275,21 +275,60 @@
         let checklistItemIndex = document.querySelectorAll("#items-container .form-group").length;
         const container = document.getElementById("items-container");
 
-        const newInput = document.createElement("div");
-        newInput.classList.add("form-group");
-        newInput.classList.add("input-group");
+        const new_input = document.createElement("div");
+        new_input.classList.add("form-group");
+        new_input.classList.add("input-group");
 
-        newInput.innerHTML = `
+        new_input.innerHTML = `
             <span class="input-group-addon">
-                <input type="checkbox" 
+                <input type="checkbox"
                     name="checklist_items[${checklistItemIndex}][is_completed]"
                     class="item-checkbox"
+                    data-state="incomplete"
+                    value="incomplete"
                 >
             </span>
             <input type="text" name="checklist_items[${checklistItemIndex}][item_name]" class="form-control item-text" placeholder="Item">
         `;
 
-        container.appendChild(newInput);
+        const checkbox = new_input.querySelector('.item-checkbox');
+        const checkbox_item_text = new_input.querySelector('.item-text');
+
+        // Set initial styles
+        checkbox.checked = false;
+        checkbox.indeterminate = false;
+
+        checkbox.addEventListener('click', function (e) {
+            let currentState = this.getAttribute('data-state');
+
+            if (currentState === "incomplete") {
+                // Change state to complete
+                this.setAttribute('data-state', 'complete');
+                this.checked = true;
+                this.indeterminate = false;
+                this.value = 'complete';
+                checkbox_item_text.classList.remove("marked-skipped");
+                checkbox_item_text.classList.add("marked-complete");
+            } else if (currentState === "complete") {
+                // Change state to skipped
+                this.setAttribute('data-state', 'skipped');
+                this.checked = false;
+                this.indeterminate = true;
+                this.value = 'skipped';
+                checkbox_item_text.classList.remove("marked-complete");
+                checkbox_item_text.classList.add("marked-skipped");
+            } else {
+                // Change state to incomplete
+                this.setAttribute('data-state', 'incomplete');
+                this.checked = false;
+                this.indeterminate = false;
+                this.value = 'incomplete';
+                checkbox_item_text.classList.remove("marked-complete");
+                checkbox_item_text.classList.remove("marked-skipped");
+            }
+        });
+
+        container.appendChild(new_input);
     }
 
     function shareChecklist() {
