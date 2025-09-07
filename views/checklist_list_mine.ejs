@@ -2,7 +2,7 @@
 
 <div class="row">
     <div class="col-lg-12">
-        <h2 class="page-header">My Checklists</h2>
+        <h2 class="page-header page-header-title">My Checklists</h2>
         <div class="panel panel-default">
             <div class="panel-heading">
                 My Checklists
@@ -54,17 +54,17 @@
                                             <% } %>
                                         </td>                                        
                                         <td>
-                                            <a href="/checklists/update/<%= checklist._id %>" class="btn btn-warning btn-sm">
+                                            <a href="/update-checklist/<%= checklist._id %>" class="btn btn-warning btn-sm">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                         </td>
                                         <td>
-                                            <a href="/checklists/delete/<%= checklist._id %>" class="btn btn-danger btn-sm">
+                                            <a href="/delete-checklist/<%= checklist._id %>" class="btn btn-danger btn-sm">
                                                 <i class="fa fa-times"></i>
                                             </a>
                                         </td>
                                         <td>
-                                            <a href="/checklists/view/<%= checklist._id %>" class="btn btn-info btn-sm">
+                                            <a href="/view-checklist/<%= checklist._id %>" class="btn btn-info btn-sm">
                                                 <i class="fa fa-info-circle"></i>
                                             </a>
                                         </td>
@@ -73,11 +73,13 @@
                                                 <%= checklist.checklist_url_slug %>
                                             </a>
                                             &nbsp;
-                                            <button 
-                                                class="btn btn-sm btn-outline-secondary" 
-                                                onclick="copyToClipboard('<%= checklist.checklist_url_slug %>')">
-                                                Copy
-                                            </button>
+                                            <div style="float:right;">
+                                                <button 
+                                                    class="btn btn-sm btn-outline-secondary" 
+                                                    onclick="copyToClipboard('<%= checklist.checklist_url_slug %>')">
+                                                    Copy
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 <% }) %>
@@ -99,7 +101,7 @@
 
         <!-- Create New Checklist Button -->
         <div style="float:right;margin-bottom: 20px;">
-            <a href="/checklists/create" class="btn btn-success">
+            <a href="/create-checklist" class="btn btn-success">
                 <i class="fa fa-plus"></i> Create New Checklist
             </a>
         </div>

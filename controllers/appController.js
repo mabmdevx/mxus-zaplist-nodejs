@@ -6,6 +6,7 @@ exports.renderDashboard = async (req, res) => {
     
         return res.render("dashboard", {
             SITE_TITLE: process.env.SITE_TITLE,
+            CURRENT_YEAR: new Date().getFullYear(),
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             session_user_id: req.session.session_user_id

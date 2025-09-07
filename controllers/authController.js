@@ -9,6 +9,7 @@ exports.renderSignupPage = (req, res) => {
         // Render signup form
         return res.render('signup', {
             SITE_TITLE: process.env.SITE_TITLE,
+            CURRENT_YEAR: new Date().getFullYear(),
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             msg_error: ''
@@ -31,6 +32,7 @@ exports.signup = async (req, res) => {
 
             return res.render("signup", { 
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 msg_error: "Missing data."
@@ -43,6 +45,7 @@ exports.signup = async (req, res) => {
 
             return res.render('signup', {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 msg_error: 'Passwords do not match.'
@@ -56,6 +59,7 @@ exports.signup = async (req, res) => {
 
             return res.render('signup', {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 msg_error: 'UserID is already in use.'
@@ -89,6 +93,7 @@ exports.renderLoginPage = (req, res) => {
         // Render login form
         return res.render('login', {
             SITE_TITLE: process.env.SITE_TITLE,
+            CURRENT_YEAR: new Date().getFullYear(),
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             msg_error: ''
@@ -111,6 +116,7 @@ exports.login = async (req, res) => {
 
             return res.render("login", { 
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 msg_error: "Invalid credentials"
@@ -125,6 +131,7 @@ exports.login = async (req, res) => {
 
             return res.render("login", { 
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 msg_error: "Invalid credentials"
@@ -139,6 +146,7 @@ exports.login = async (req, res) => {
 
             return res.render("login", { 
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 msg_error: "Invalid credentials"
@@ -170,6 +178,7 @@ exports.renderChangePasswordPage = async (req, res) => {
 
         res.render("change_password", { 
             SITE_TITLE: process.env.SITE_TITLE,
+            CURRENT_YEAR: new Date().getFullYear(),
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             session_user_id: session_user_id,
@@ -201,6 +210,7 @@ exports.changePassword = async (req, res) => {
 
             return res.render("change_password", {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -215,6 +225,7 @@ exports.changePassword = async (req, res) => {
 
             return res.render("change_password", { 
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -232,6 +243,7 @@ exports.changePassword = async (req, res) => {
             
             return res.render("change_password", { 
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -248,6 +260,7 @@ exports.changePassword = async (req, res) => {
 
             return res.render("change_password", { 
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -267,6 +280,7 @@ exports.changePassword = async (req, res) => {
 
         return res.render("change_password", { 
             SITE_TITLE: process.env.SITE_TITLE,
+            CURRENT_YEAR: new Date().getFullYear(),
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             session_user_id: session_user_id,

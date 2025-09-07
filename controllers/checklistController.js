@@ -37,6 +37,7 @@ exports.renderListMyOwnedChecklists = async (req, res) => {
 
         return res.render("checklist_list_mine", {
             SITE_TITLE: process.env.SITE_TITLE,
+            CURRENT_YEAR: new Date().getFullYear(),
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             session_user_id: session_user_id,
@@ -93,6 +94,7 @@ exports.renderListMySharedChecklists = async (req, res) => {
 
         return res.render("checklist_list_shared", {
             SITE_TITLE: process.env.SITE_TITLE,
+            CURRENT_YEAR: new Date().getFullYear(),
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             session_user_id: session_user_id,
@@ -116,6 +118,7 @@ exports.renderCreateChecklistPage = (req, res) => {
 
         return res.render("checklist_form", {
             SITE_TITLE: process.env.SITE_TITLE,
+            CURRENT_YEAR: new Date().getFullYear(),
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             session_user_id: session_user_id,
@@ -211,6 +214,7 @@ exports.renderUpdateChecklistPage = async (req, res) => {
 
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -241,6 +245,7 @@ exports.renderUpdateChecklistPage = async (req, res) => {
 
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -252,6 +257,7 @@ exports.renderUpdateChecklistPage = async (req, res) => {
 
         return res.render("checklist_form", {
             SITE_TITLE: process.env.SITE_TITLE,
+            CURRENT_YEAR: new Date().getFullYear(),
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             session_user_id: session_user_id,
@@ -308,6 +314,7 @@ exports.updateChecklist = async (req, res) => {
 
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -340,6 +347,7 @@ exports.updateChecklist = async (req, res) => {
 
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -378,8 +386,8 @@ exports.updateChecklist = async (req, res) => {
         console.log("updateChecklist() :: Success - Checklist updated successfully");
 
         // Redirect after completion
-        if(source_page === "my-shared-checklists"){
-            res.redirect("/my-shared-checklists");
+        if(source_page === "checklists-shared-with-me") {
+            res.redirect("/checklists-shared-with-me");
         } else {
             res.redirect("/my-checklists");
         }
@@ -414,6 +422,7 @@ exports.renderViewChecklistPage = async (req, res) => {
 
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -440,6 +449,7 @@ exports.renderViewChecklistPage = async (req, res) => {
 
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -451,6 +461,7 @@ exports.renderViewChecklistPage = async (req, res) => {
 
         return res.render("checklist_view", {
             SITE_TITLE: process.env.SITE_TITLE,
+            CURRENT_YEAR: new Date().getFullYear(),
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             session_user_id: session_user_id,
@@ -484,6 +495,7 @@ exports.deleteChecklist = async (req, res) => {
 
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -499,6 +511,7 @@ exports.deleteChecklist = async (req, res) => {
 
             return res.render("error_general_auth", {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -523,8 +536,7 @@ exports.toggleItemCompletion = async (req, res) => {
     try {
         console.log("toggleItemCompletion() :: Function called");
 
-        const { checklist_id, item_id } = req.params;
-        const { status } = req.body;
+        const { checklist_id, item_id, status } = req.body;
 
         console.log("toggleItemCompletion() :: checklist_id: " + checklist_id);
         console.log("toggleItemCompletion() :: item_id: " + item_id);
@@ -568,6 +580,7 @@ exports.renderSharedChecklistPage = async (req, res) => {
 
             return res.render("error_general_unauth", {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -598,6 +611,7 @@ exports.renderSharedChecklistPage = async (req, res) => {
 
             return res.render("error_general_unauth", {
                 SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
                 STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
                 STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
                 session_user_id: session_user_id,
@@ -609,6 +623,7 @@ exports.renderSharedChecklistPage = async (req, res) => {
 
         return res.render("checklist_view", {
             SITE_TITLE: process.env.SITE_TITLE,
+            CURRENT_YEAR: new Date().getFullYear(),
             STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
             STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
             share_url: true,

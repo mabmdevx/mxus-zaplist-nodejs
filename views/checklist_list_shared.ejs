@@ -2,10 +2,10 @@
 
 <div class="row">
     <div class="col-lg-12">
-        <h2 class="page-header">My Shared Checklists</h2>
+        <h2 class="page-header page-header-title">Checklists Shared With Me</h2>
         <div class="panel panel-default">
             <div class="panel-heading">
-                My Shared Checklists
+                Checklists Shared With Me
             </div>
             <!-- /.panel-heading -->
             <div class="panel-body">
@@ -60,12 +60,12 @@
                                             <% } %>
                                         </td>
                                         <td>
-                                            <a href="/checklists/update/<%= checklist._id %>?source_page=my-shared-checklists" class="btn btn-warning btn-sm">
+                                            <a href="/update-checklist/<%= checklist._id %>?source_page=my-shared-checklists" class="btn btn-warning btn-sm">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                         </td>
                                         <td>
-                                            <a href="/checklists/view/<%= checklist._id %>" class="btn btn-info btn-sm">
+                                            <a href="/view-checklist/<%= checklist._id %>" class="btn btn-info btn-sm">
                                                 <i class="fa fa-info-circle"></i>
                                             </a>
                                         </td>
@@ -74,11 +74,13 @@
                                                 <%= checklist.checklist_url_slug %>
                                             </a>
                                             &nbsp;
-                                            <button 
-                                                class="btn btn-sm btn-outline-secondary" 
-                                                onclick="copyToClipboard('<%= checklist.checklist_url_slug %>')">
-                                                Copy
-                                            </button>
+                                            <div style="float:right;">
+                                                <button 
+                                                    class="btn btn-sm btn-outline-secondary" 
+                                                    onclick="copyToClipboard('<%= checklist.checklist_url_slug %>')">
+                                                    Copy
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 <% }) %>

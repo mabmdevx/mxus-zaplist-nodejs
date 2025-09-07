@@ -79,7 +79,7 @@ app.get("/", (req, res) => {
 });
 
 
-// Auth routes
+// -- Auth routes --
 // Signup
 app.get('/signup', authController.renderSignupPage);
 app.post('/signup', authController.signup);
@@ -96,41 +96,43 @@ app.post('/change-password', authController.changePassword);
 app.get('/logout', authController.logout);
 
 
-// App routes
+// -- App routes --
+// Dashboard
 app.get("/dashboard", appController.renderDashboard);
-
 
 // List My Checklists
 app.get("/my-checklists", checklistController.renderListMyOwnedChecklists);
 
 // List Shared Checklists
-app.get("/my-shared-checklists", checklistController.renderListMySharedChecklists);
+app.get("/checklists-shared-with-me", checklistController.renderListMySharedChecklists);
 
 // Create Checklist
-app.get("/checklists/create", checklistController.renderCreateChecklistPage);
-app.post("/checklists/create", checklistController.createChecklist);
+app.get("/create-checklist", checklistController.renderCreateChecklistPage);
+app.post("/create-checklist", checklistController.createChecklist);
 
 // Update Checklist
-app.get("/checklists/update/:checklist_id", checklistController.renderUpdateChecklistPage);
-app.post("/checklists/update/:checklist_id", checklistController.updateChecklist);
+app.get("/update-checklist/:checklist_id", checklistController.renderUpdateChecklistPage);
+app.post("/update-checklist/:checklist_id", checklistController.updateChecklist);
 
 // View Checklist
-app.get("/checklists/view/:checklist_id", checklistController.renderViewChecklistPage);
+app.get("/view-checklist/:checklist_id", checklistController.renderViewChecklistPage);
 
 // Delete Checklist
-app.get("/checklists/delete/:checklist_id", checklistController.deleteChecklist);
-
-// Toggle Checklist Item Completion
-app.post('/checklists/:checklist_id/items/:item_id/toggle-completion', checklistController.toggleItemCompletion)
+app.get("/delete-checklist/:checklist_id", checklistController.deleteChecklist);
 
 // Share URL
 app.get('/share/:url_slug', checklistController.renderSharedChecklistPage);
 
+
+// -- API Endpoints --
+// Toggle Checklist Item Completion
+app.post('/api/checklist/toggle-item-completion', checklistController.toggleItemCompletion)
+
 // Share Checklist with a user
-app.post("/checklists/share/", checklistController.shareChecklist);
+app.post("/api/share-checklist", checklistController.shareChecklist);
 
 // Unshare Checklist with a user
-app.post("/checklists/unshare/", checklistController.unshareChecklist);
+app.post("/api/unshare-checklist", checklistController.unshareChecklist);
 
 // Start the server
 app.listen(APP_PORT, () => {

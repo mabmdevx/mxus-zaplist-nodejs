@@ -9,6 +9,12 @@ ZapList - A checklist app written in NodeJS with MongoDB as the database
 - Make a checklist public without needing authentication and share the unique checklist url
 - Share a checklist with another user using UserID or Email
 
+## Tech Stack
+- Tech Stack: NodeJS, Bootstrap, HTML, CSS, JS
+- Database: MongoDB
+- WebApp Architecture: Postback
+- Tools/Services used:
+    - Statcounter
 
 #### How to setup in Development Environment
 
@@ -148,6 +154,12 @@ exit
 pm2 start app.js --name "zaplist"
 ```
 
+### How to redeploy the app for updates and fixes
+```bash
+git pull
+pm2 restart app.js --name "zaplist"
+```
+
 ### Setup automated DB backup to Backblaze
 - Setup the Backblaze CLI
 ```bash
@@ -177,3 +189,4 @@ crontab -e
 # DB Backup: B2 bucket - Cleanup files older than 30 days
 10 0 * * * /opt/scripts/mongodb_backup/b2_cleanup_zaplist.sh
 ```
+

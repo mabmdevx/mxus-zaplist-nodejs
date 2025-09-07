@@ -115,3 +115,7 @@ fieldset {
 	background-color: #f5f5f5;
 	font-weight: normal;
 }
+
+.page-header-title {
+	font-size: 25px;
+}
