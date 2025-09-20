@@ -190,3 +190,9 @@ crontab -e
 10 0 * * * /opt/scripts/mongodb_backup/b2_cleanup_zaplist.sh
 ```
 
+
+<img
+class="statcounter"
+src="https://c.statcounter.com/13168254/0/494bd86d/1/"
+alt="Web Analytics"
+/>
