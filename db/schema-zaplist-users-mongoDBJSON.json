@@ -1,0 +1,41 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "_id",
+      "__v",
+      "createdAt",
+      "is_deleted",
+      "updatedAt",
+      "user_email",
+      "user_id",
+      "user_password"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "string"
+      },
+      "__v": {
+        "bsonType": "int"
+      },
+      "createdAt": {
+        "bsonType": "date"
+      },
+      "is_deleted": {
+        "bsonType": "bool"
+      },
+      "updatedAt": {
+        "bsonType": "date"
+      },
+      "user_email": {
+        "bsonType": "string"
+      },
+      "user_id": {
+        "bsonType": "string"
+      },
+      "user_password": {
+        "bsonType": "string"
+      }
+    }
+  }
+}

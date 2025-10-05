@@ -1,0 +1,120 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "_id",
+      "__v",
+      "checklist_items",
+      "checklist_title",
+      "checklist_type",
+      "checklist_url_slug",
+      "created_by",
+      "createdAt",
+      "is_deleted",
+      "updated_by",
+      "updatedAt"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "string"
+      },
+      "__v": {
+        "bsonType": "int"
+      },
+      "checklist_is_public": {
+        "bsonType": "bool"
+      },
+      "checklist_items": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": "object",
+          "properties": {
+            "_id": {
+              "bsonType": "string"
+            },
+            "created_by": {
+              "bsonType": "string"
+            },
+            "createdAt": {
+              "bsonType": "date"
+            },
+            "is_completed": {
+              "bsonType": [
+                "string",
+                "bool"
+              ]
+            },
+            "is_deleted": {
+              "bsonType": "bool"
+            },
+            "item_name": {
+              "bsonType": "string"
+            },
+            "updated_by": {
+              "bsonType": "string"
+            },
+            "updatedAt": {
+              "bsonType": "date"
+            }
+          },
+          "required": [
+            "_id",
+            "created_by",
+            "createdAt",
+            "is_completed",
+            "is_deleted",
+            "item_name",
+            "updated_by",
+            "updatedAt"
+          ]
+        }
+      },
+      "checklist_shared_with": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": "object",
+          "properties": {
+            "_id": {
+              "bsonType": "string"
+            },
+            "share_access_level": {
+              "bsonType": "string"
+            },
+            "share_user_id": {
+              "bsonType": "string"
+            }
+          },
+          "required": [
+            "_id",
+            "share_access_level",
+            "share_user_id"
+          ]
+        }
+      },
+      "checklist_title": {
+        "bsonType": "string"
+      },
+      "checklist_type": {
+        "bsonType": "string"
+      },
+      "checklist_url_slug": {
+        "bsonType": "string"
+      },
+      "created_by": {
+        "bsonType": "string"
+      },
+      "createdAt": {
+        "bsonType": "date"
+      },
+      "is_deleted": {
+        "bsonType": "bool"
+      },
+      "updated_by": {
+        "bsonType": "string"
+      },
+      "updatedAt": {
+        "bsonType": "date"
+      }
+    }
+  }
+}
