@@ -79,6 +79,10 @@
                                             name="checklist_items[<%= index %>][item_name]" 
                                             class="form-control item-text" 
                                             value="<%= item.item_name || "" %>" placeholder="Item">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default btn-sm" onclick="moveItem(this, -1)" title="Move up"><i class="fa fa-arrow-up"></i></button>
+                                            <button type="button" class="btn btn-default btn-sm" onclick="moveItem(this, 1)" title="Move down"><i class="fa fa-arrow-down"></i></button>
+                                        </span>
                                     </div>
                                 <% }) %>
                             </div>
@@ -289,6 +293,10 @@
                 >
             </span>
             <input type="text" name="checklist_items[${checklistItemIndex}][item_name]" class="form-control item-text" placeholder="Item">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default btn-sm" onclick="moveItem(this, -1)" title="Move up"><i class="fa fa-arrow-up"></i></button>
+                <button type="button" class="btn btn-default btn-sm" onclick="moveItem(this, 1)" title="Move down"><i class="fa fa-arrow-down"></i></button>
+            </span>
         `;
 
         const checkbox = new_input.querySelector('.item-checkbox');
@@ -329,6 +337,40 @@
         });
 
         container.appendChild(new_input);
+    }
+
+    function reindexItems() {
+        const rows = document.querySelectorAll('#items-container .form-group');
+        rows.forEach((row, newIndex) => {
+            const hiddenInput = row.querySelector('input[type="hidden"][name*="is_completed"]');
+            if (hiddenInput) {
+                hiddenInput.name = `checklist_items[${newIndex}][is_completed]`;
+            }
+            const checkbox = row.querySelector('.item-checkbox');
+            if (checkbox) {
+                checkbox.dataset.index = newIndex;
+                if (checkbox.name) {
+                    checkbox.name = `checklist_items[${newIndex}][is_completed]`;
+                }
+            }
+            const textInput = row.querySelector('.item-text');
+            if (textInput) {
+                textInput.name = `checklist_items[${newIndex}][item_name]`;
+            }
+        });
+    }
+
+    function moveItem(btn, direction) {
+        const row = btn.closest('.form-group.input-group');
+        const container = document.getElementById('items-container');
+        if (direction === -1) {
+            const prev = row.previousElementSibling;
+            if (prev) container.insertBefore(row, prev);
+        } else {
+            const next = row.nextElementSibling;
+            if (next) container.insertBefore(next, row);
+        }
+        reindexItems();
     }
 
     function shareChecklist() {

@@ -84,7 +84,8 @@
                         <% } %>
 
                         <br/>
-                        <% if (share_url === false) { %> <!-- Close button only if not in share view -->
+                        <% if (share_url === false) { %> <!-- Buttons only if not in share view -->
+                            <a href="/update-checklist/<%= checklist ? checklist._id : '' %>" class="btn btn-primary"><i class="fa fa-pencil"></i> Edit</a>
                             <a href="/dashboard" class="btn btn-default"><i class="fa fa-times"></i> Close</a>
                         <% } %>
                     </div>
