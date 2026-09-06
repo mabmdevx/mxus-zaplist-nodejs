@@ -1,5 +1,15 @@
 <%- include("layouts/top_auth") %>
 
+<style>
+    /* Bootstrap's .table-striped sets background-color directly on <td> for odd rows,
+       which overrides a background-color set on the parent <tr>. Target the <td> directly
+       (with higher specificity via the row class) so completed rows stay highlighted. */
+    .table-striped > tbody > tr.row-completed > td {
+        background-color: #d4edda !important;
+        color: #256029 !important;
+    }
+</style>
+
 <div class="row">
     <div class="col-lg-12">
         <h2 class="page-header page-header-title">Checklists Shared With Me</h2>
@@ -28,7 +38,7 @@
                         <tbody>
                             <% if (my_shared_checklists && my_shared_checklists.length) { %>
                                 <% my_shared_checklists.forEach(checklist => { %>
-                                    <tr>
+                                    <tr class="<%= checklist.checklist_is_completed ? 'row-completed' : '' %>">
                                         <td style="<%= checklist.checklist_is_completed ? 'text-decoration: line-through;' : '' %>">
                                             <%= checklist.checklist_title %>
                                         </td>
