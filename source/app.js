@@ -3,8 +3,9 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const cookieParser = require("cookie-parser");
 const { connectToDB } = require('./utils/db');
-const { checkUserLoggedIn, errorHandler } = require('./utils/helpers');
+const { checkUserLoggedIn, redirectIfAuthenticated, errorHandler } = require('./utils/helpers');
 
 const app = express();
 const APP_PORT = process.env.APP_PORT || 3000; // Default to 3000 if not set
@@ -22,6 +23,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Configure session middleware
 app.use(
@@ -65,14 +67,9 @@ app.use((req, res, next) => {
 
 
 // Define routes
-app.get("/", (req, res) => {
+app.get("/", checkUserLoggedIn, (req, res) => {
     try{
-
-        // Check if user is logged in
-        checkUserLoggedIn(req, res);
-
         return res.redirect("/dashboard");
-
     } catch (error) {
         errorHandler(error, req, res);
     }
@@ -85,7 +82,7 @@ app.get('/signup', authController.renderSignupPage);
 app.post('/signup', authController.signup);
 
 // Login
-app.get('/login', authController.renderLoginPage);
+app.get('/login', redirectIfAuthenticated, authController.renderLoginPage);
 app.post('/login', authController.login);
 
 // Change Password

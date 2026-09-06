@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
-const { errorHandler } = require('../utils/helpers');
+const { errorHandler, issueRememberMeToken, clearRememberMeToken } = require('../utils/helpers');
 
 exports.renderSignupPage = (req, res) => {
     try {
@@ -108,7 +108,7 @@ exports.login = async (req, res) => {
     try {
         console.log("login() :: Function called");
 
-        const { app_user_id, app_user_password } = req.body;
+        const { app_user_id, app_user_password, app_remember_me } = req.body;
 
         // Check if UserId and Password are provided
         if (!app_user_id|| !app_user_password) {
@@ -157,6 +157,11 @@ exports.login = async (req, res) => {
 
             console.log("login() :: User logged in: " + req.session.session_user_id);
             console.log("login() :: session_user_system_id: " + req.session.session_user_system_id);
+
+            if (app_remember_me) {
+                console.log("login() :: Remember me requested for user: " + app_user_id);
+                await issueRememberMeToken(res, user);
+            }
 
             res.redirect("/dashboard");
         }
@@ -295,10 +300,13 @@ exports.changePassword = async (req, res) => {
     
 };
 
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
     try {
         console.log("logout() :: Function called");
-        
+
+        // Invalidate any "remember me" token and clear its cookie
+        await clearRememberMeToken(req, res);
+
         // Destroy session
         if (req?.session?.session_user_id) {
             req.session.destroy(() => {
