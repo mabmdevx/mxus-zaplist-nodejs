@@ -96,6 +96,26 @@
     </div>
 </div>
 
+<% if (share_url === false) { %>
+<!-- New Items Added Modal -->
+<div class="modal fade" id="newItemsModal" tabindex="-1" role="dialog" aria-labelledby="newItemsModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="newItemsModalLabel">New Items Added</h4>
+            </div>
+            <div class="modal-body">
+                <p>New items have been added to this checklist since you last viewed it.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<% } %>
+
 <script>
     document.querySelectorAll('.item-checkbox').forEach(checkbox => {
         // Initialize state
@@ -173,6 +193,27 @@
         });
     });
 </script>
+
+<% if (share_url === false && checklist && checklist._id) { %>
+<script>
+    // -- Detect items added since the last time this checklist was viewed --
+    // Deferred until 'load' because jQuery/Bootstrap's JS is loaded at the bottom of the page
+    // (see layouts/bottom_auth.ejs), which executes AFTER this inline script block. Calling
+    // $(...).modal() before then would throw "$ is not defined".
+    window.addEventListener('load', function checkForNewlyAddedItems() {
+        const storage_key = `zaplist_checklist_item_count_<%= checklist._id %>`;
+        const current_item_count = <%= checklist.checklist_items.length %>;
+
+        const previous_item_count = sessionStorage.getItem(storage_key);
+
+        if (previous_item_count !== null && current_item_count > parseInt(previous_item_count, 10)) {
+            $('#newItemsModal').modal('show');
+        }
+
+        sessionStorage.setItem(storage_key, current_item_count);
+    });
+</script>
+<% } %>
 
 
 <% if (share_url === true) { %>
