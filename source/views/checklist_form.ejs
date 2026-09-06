@@ -96,6 +96,7 @@
                                             value="<%= item.item_name || "" %>" placeholder="Item">
                                         <span class="input-group-btn">
                                             <button type="button" class="btn btn-default btn-sm drag-handle" title="Drag to reorder"><i class="fa fa-arrows"></i></button>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)" title="Remove item"><i class="fa fa-times"></i></button>
                                         </span>
                                     </div>
                                 <% }) %>
@@ -309,6 +310,7 @@
             <input type="text" name="checklist_items[${checklistItemIndex}][item_name]" class="form-control item-text" placeholder="Item">
             <span class="input-group-btn">
                 <button type="button" class="btn btn-default btn-sm drag-handle" title="Drag to reorder"><i class="fa fa-arrows"></i></button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)" title="Remove item"><i class="fa fa-times"></i></button>
             </span>
         `;
 
@@ -371,6 +373,18 @@
                 textInput.name = `checklist_items[${newIndex}][item_name]`;
             }
         });
+    }
+
+    function removeItem(btn) {
+        const rows = document.querySelectorAll('#items-container .form-group.input-group');
+        if (rows.length <= 1) {
+            alert("At least one item is required.");
+            return;
+        }
+
+        const row = btn.closest('.form-group.input-group');
+        row.remove();
+        reindexItems();
     }
 
     // -- Drag and drop reordering --
