@@ -19,6 +19,13 @@
             </div>
             <!-- /.panel-heading -->
             <div class="panel-body">
+
+                <ul class="nav nav-tabs" id="checklistFilterTabs" style="margin-bottom: 15px;">
+                    <li class="active"><a href="#" data-filter="all">All</a></li>
+                    <li><a href="#" data-filter="open">Open</a></li>
+                    <li><a href="#" data-filter="completed">Completed</a></li>
+                </ul>
+
                 <div class="table-responsive">
 
                     <table class="table table-striped table-bordered table-hover" style="margin-bottom:0px;">
@@ -35,10 +42,11 @@
                                 <th>Share URL</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="checklistTableBody">
                             <% if (my_shared_checklists && my_shared_checklists.length) { %>
                                 <% my_shared_checklists.forEach(checklist => { %>
-                                    <tr class="<%= checklist.checklist_is_completed ? 'row-completed' : '' %>">
+                                    <tr class="<%= checklist.checklist_is_completed ? 'row-completed' : '' %>"
+                                        data-is-completed="<%= checklist.checklist_is_completed ? 'true' : 'false' %>">
                                         <td style="<%= checklist.checklist_is_completed ? 'text-decoration: line-through;' : '' %>">
                                             <%= checklist.checklist_title %>
                                         </td>
@@ -99,7 +107,10 @@
                                     <td colspan="9" class="text-center">No checklists have been shared with you.</td>
                                 </tr>
                             <% } %>
-                            
+                            <tr id="emptyFilterRow" style="display:none;">
+                                <td colspan="9" class="text-center">No checklists match this filter</td>
+                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -111,5 +122,38 @@
 
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('#checklistFilterTabs a').forEach(tab_link => {
+        tab_link.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            document.querySelectorAll('#checklistFilterTabs li').forEach(li => li.classList.remove('active'));
+            this.parentElement.classList.add('active');
+
+            const filter = this.dataset.filter;
+            const rows = document.querySelectorAll('#checklistTableBody tr[data-is-completed]');
+            let visible_count = 0;
+
+            rows.forEach(row => {
+                let show_row = true;
+
+                if (filter === 'open') {
+                    show_row = row.dataset.isCompleted === 'false';
+                } else if (filter === 'completed') {
+                    show_row = row.dataset.isCompleted === 'true';
+                }
+
+                row.style.display = show_row ? '' : 'none';
+                if (show_row) visible_count++;
+            });
+
+            const empty_filter_row = document.getElementById('emptyFilterRow');
+            if (empty_filter_row) {
+                empty_filter_row.style.display = visible_count === 0 ? '' : 'none';
+            }
+        });
+    });
+</script>
 
 <%- include("layouts/bottom_auth") %>
