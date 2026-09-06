@@ -18,6 +18,7 @@
         cursor: grab;
         margin-right: 8px;
         color: #888;
+        touch-action: none; /* Prevents mobile browsers from scrolling the page while dragging */
     }
 
     .drag-handle:active {
@@ -94,7 +95,7 @@
                                             class="form-control item-text" 
                                             value="<%= item.item_name || "" %>" placeholder="Item">
                                         <span class="input-group-btn">
-                                            <button type="button" class="btn btn-default btn-sm drag-handle" draggable="true" title="Drag to reorder"><i class="fa fa-arrows"></i></button>
+                                            <button type="button" class="btn btn-default btn-sm drag-handle" title="Drag to reorder"><i class="fa fa-arrows"></i></button>
                                         </span>
                                     </div>
                                 <% }) %>
@@ -307,7 +308,7 @@
             </span>
             <input type="text" name="checklist_items[${checklistItemIndex}][item_name]" class="form-control item-text" placeholder="Item">
             <span class="input-group-btn">
-                <button type="button" class="btn btn-default btn-sm drag-handle" draggable="true" title="Drag to reorder"><i class="fa fa-arrows"></i></button>
+                <button type="button" class="btn btn-default btn-sm drag-handle" title="Drag to reorder"><i class="fa fa-arrows"></i></button>
             </span>
         `;
 
@@ -373,6 +374,8 @@
     }
 
     // -- Drag and drop reordering --
+    // Uses Pointer Events (not native HTML5 drag-and-drop) so it works uniformly across
+    // mouse, touch, and pen. Native HTML5 DnD does not fire from touch gestures on mobile.
     (function setupDragAndDrop() {
         const container = document.getElementById('items-container');
         let dragged_row = null;
@@ -389,16 +392,17 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        container.addEventListener('dragstart', function (event) {
+        container.addEventListener('pointerdown', function (event) {
             const handle = event.target.closest('.drag-handle');
             if (!handle) return;
+
             dragged_row = handle.closest('.form-group.input-group');
             dragged_row.classList.add('dragging');
-            event.dataTransfer.effectAllowed = 'move';
-            event.dataTransfer.setData('text/plain', ''); // Required for drag to work in some browsers
+            handle.setPointerCapture(event.pointerId);
+            event.preventDefault(); // Stop the browser from starting a scroll/selection gesture
         });
 
-        container.addEventListener('dragover', function (event) {
+        container.addEventListener('pointermove', function (event) {
             if (!dragged_row) return;
             event.preventDefault();
 
@@ -410,13 +414,16 @@
             }
         });
 
-        container.addEventListener('dragend', function () {
+        function endDrag() {
             if (dragged_row) {
                 dragged_row.classList.remove('dragging');
                 dragged_row = null;
                 reindexItems();
             }
-        });
+        }
+
+        container.addEventListener('pointerup', endDrag);
+        container.addEventListener('pointercancel', endDrag);
     })();
 
     function shareChecklist() {
