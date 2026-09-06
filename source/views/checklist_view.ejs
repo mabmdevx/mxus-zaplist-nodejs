@@ -26,12 +26,18 @@
 </style>
 
 <div class="row">
-    <div class="col-lg-12"></div>
-    <% if (share_url === true) { %>
-        <h2 class="page-header page-header-title share-url-title">Checklist <%= checklist ? checklist.checklist_url_slug : '' %></h2>
-    <% } else { %>
-        <h2 class="page-header page-header-title">View Checklist</h2>
-    <% } %>
+    <div class="col-lg-12">
+        <% if (share_url === true) { %>
+            <h2 class="page-header page-header-title share-url-title">Checklist <%= checklist ? checklist.checklist_url_slug : '' %></h2>
+        <% } else { %>
+            <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 class="page-header-title" style="margin: 0;">View Checklist</h2>
+                <button type="button" class="btn btn-default" onclick="location.reload()" title="Refresh page">
+                    <i class="fa fa-refresh"></i> Refresh
+                </button>
+            </div>
+        <% } %>
+    </div>
 </div>
 
 <div class="row">
