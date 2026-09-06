@@ -13,6 +13,20 @@
     .marked-skipped {
         background-color: #d8d0be !important;
     }
+
+    .drag-handle {
+        cursor: grab;
+        margin-right: 8px;
+        color: #888;
+    }
+
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+
+    #items-container .form-group.input-group.dragging {
+        opacity: 0.4;
+    }
 </style>
 
 <div class="row">
@@ -80,8 +94,7 @@
                                             class="form-control item-text" 
                                             value="<%= item.item_name || "" %>" placeholder="Item">
                                         <span class="input-group-btn">
-                                            <button type="button" class="btn btn-default btn-sm" onclick="moveItem(this, -1)" title="Move up"><i class="fa fa-arrow-up"></i></button>
-                                            <button type="button" class="btn btn-default btn-sm" onclick="moveItem(this, 1)" title="Move down"><i class="fa fa-arrow-down"></i></button>
+                                            <button type="button" class="btn btn-default btn-sm drag-handle" draggable="true" title="Drag to reorder"><i class="fa fa-arrows"></i></button>
                                         </span>
                                     </div>
                                 <% }) %>
@@ -294,8 +307,7 @@
             </span>
             <input type="text" name="checklist_items[${checklistItemIndex}][item_name]" class="form-control item-text" placeholder="Item">
             <span class="input-group-btn">
-                <button type="button" class="btn btn-default btn-sm" onclick="moveItem(this, -1)" title="Move up"><i class="fa fa-arrow-up"></i></button>
-                <button type="button" class="btn btn-default btn-sm" onclick="moveItem(this, 1)" title="Move down"><i class="fa fa-arrow-down"></i></button>
+                <button type="button" class="btn btn-default btn-sm drag-handle" draggable="true" title="Drag to reorder"><i class="fa fa-arrows"></i></button>
             </span>
         `;
 
@@ -360,18 +372,52 @@
         });
     }
 
-    function moveItem(btn, direction) {
-        const row = btn.closest('.form-group.input-group');
+    // -- Drag and drop reordering --
+    (function setupDragAndDrop() {
         const container = document.getElementById('items-container');
-        if (direction === -1) {
-            const prev = row.previousElementSibling;
-            if (prev) container.insertBefore(row, prev);
-        } else {
-            const next = row.nextElementSibling;
-            if (next) container.insertBefore(next, row);
+        let dragged_row = null;
+
+        function getRowAfterPosition(y) {
+            const rows = [...container.querySelectorAll('.form-group.input-group:not(.dragging)')];
+            return rows.reduce((closest, row) => {
+                const box = row.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: row };
+                }
+                return closest;
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
-        reindexItems();
-    }
+
+        container.addEventListener('dragstart', function (event) {
+            const handle = event.target.closest('.drag-handle');
+            if (!handle) return;
+            dragged_row = handle.closest('.form-group.input-group');
+            dragged_row.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', ''); // Required for drag to work in some browsers
+        });
+
+        container.addEventListener('dragover', function (event) {
+            if (!dragged_row) return;
+            event.preventDefault();
+
+            const row_after = getRowAfterPosition(event.clientY);
+            if (row_after == null) {
+                container.appendChild(dragged_row);
+            } else {
+                container.insertBefore(dragged_row, row_after);
+            }
+        });
+
+        container.addEventListener('dragend', function () {
+            if (dragged_row) {
+                dragged_row.classList.remove('dragging');
+                dragged_row = null;
+                reindexItems();
+            }
+        });
+    })();
 
     function shareChecklist() {
         const checklist_id = document.getElementById("checklist_id").value;
