@@ -53,6 +53,7 @@
                     <li class="active"><a href="#" data-filter="open">Open</a></li>
                     <li><a href="#" data-filter="completed">Completed</a></li>
                     <li><a href="#" data-filter="starred">Starred</a></li>
+                    <li><a href="#" data-filter="public">Public</a></li>
                     <li><a href="#" data-filter="all">All</a></li>
                 </ul>
 
@@ -80,6 +81,7 @@
                                     <tr class="<%= checklist.checklist_is_completed ? 'row-completed' : '' %>"
                                         data-is-completed="<%= checklist.checklist_is_completed ? 'true' : 'false' %>"
                                         data-is-starred="<%= checklist.checklist_is_starred ? 'true' : 'false' %>"
+                                        data-is-public="<%= checklist.checklist_is_public ? 'true' : 'false' %>"
                                         data-sort-title="<%= checklist.checklist_title.toLowerCase() %>"
                                         data-sort-type="<%= checklist.checklist_type.toLowerCase() %>"
                                         data-sort-createddate="<%= checklist.createdAt ? new Date(checklist.createdAt).toISOString() : '' %>"
@@ -203,6 +205,8 @@
                 show_row = row.dataset.isCompleted === 'true';
             } else if (filter === 'starred') {
                 show_row = row.dataset.isStarred === 'true';
+            } else if (filter === 'public') {
+                show_row = row.dataset.isPublic === 'true';
             }
 
             row.style.display = show_row ? '' : 'none';
