@@ -33,6 +33,7 @@
                             <tr>
                                 <th>Title</th>
                                 <th>Type</th>
+                                <th>Created Date</th>
                                 <th>Is Completed</th>
                                 <th>Is Shared</th>
                                 <th>Is Public</th>
@@ -52,6 +53,7 @@
                                             <%= checklist.checklist_title %>
                                         </td>
                                         <td><%= checklist.checklist_type %></td>
+                                        <td><%= checklist.createdAt ? new Date(checklist.createdAt).toLocaleDateString() : '' %></td>
                                         <td>
                                             <% if (checklist && checklist.checklist_is_completed) { %>
                                                 <i class="fa fa-check"></i> <!-- Public (check) -->
@@ -105,11 +107,11 @@
                                 <% }) %>
                             <% } else { %>
                                 <tr>
-                                    <td colspan="9" class="text-center">No checklists available</td>
+                                    <td colspan="10" class="text-center">No checklists available</td>
                                 </tr>
                             <% } %>
                             <tr id="emptyFilterRow" style="display:none;">
-                                <td colspan="9" class="text-center">No checklists match this filter</td>
+                                <td colspan="10" class="text-center">No checklists match this filter</td>
                             </tr>
                         </tbody>
                     </table>

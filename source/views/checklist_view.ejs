@@ -67,6 +67,13 @@
                                 value="<%= checklist ? checklist.checklist_type : '' %>" readonly="readonly">
                         </div>
 
+                        <!-- Created Date -->
+                        <div class="form-group">
+                            <label class="form-label">Created Date</label>
+                            <input type="text" name="created_date" class="form-control readonly-background" 
+                                value="<%= checklist && checklist.createdAt ? new Date(checklist.createdAt).toLocaleDateString() : '' %>" readonly="readonly">
+                        </div>
+
                         <!-- Checklist Items -->
                         <label class="form-label">Items:</label>
                         <% if (checklist && checklist.checklist_items && checklist.checklist_items.length > 0) { %>

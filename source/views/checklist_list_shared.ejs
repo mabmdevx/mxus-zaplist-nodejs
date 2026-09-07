@@ -33,6 +33,7 @@
                             <tr>
                                 <th>Title</th>
                                 <th>Type</th>
+                                <th>Created Date</th>
                                 <th>Owner</th>
                                 <th>Access</th>
                                 <th>Is Completed</th>
@@ -51,6 +52,7 @@
                                             <%= checklist.checklist_title %>
                                         </td>
                                         <td><%= checklist.checklist_type %></td>
+                                        <td><%= checklist.createdAt ? new Date(checklist.createdAt).toLocaleDateString() : '' %></td>
                                         <td><%= checklist.created_by.user_id %></td>
                                         <td>
                                             <% 
@@ -104,11 +106,11 @@
                                 <% }) %>
                             <% } else { %>
                                 <tr>
-                                    <td colspan="9" class="text-center">No checklists have been shared with you.</td>
+                                    <td colspan="10" class="text-center">No checklists have been shared with you.</td>
                                 </tr>
                             <% } %>
                             <tr id="emptyFilterRow" style="display:none;">
-                                <td colspan="9" class="text-center">No checklists match this filter</td>
+                                <td colspan="10" class="text-center">No checklists match this filter</td>
                             </tr>
 
                         </tbody>
