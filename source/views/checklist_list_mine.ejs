@@ -24,6 +24,19 @@
     .sortable-header.sort-desc .fa {
         color: #333;
     }
+
+    .star-icon {
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .star-icon.fa-star {
+        color: #f0ad4e;
+    }
+
+    .star-icon.fa-star-o {
+        color: #999;
+    }
 </style>
 
 <div class="row">
@@ -40,6 +53,7 @@
                     <li class="active"><a href="#" data-filter="open">Open</a></li>
                     <li><a href="#" data-filter="completed">Completed</a></li>
                     <li><a href="#" data-filter="shared">Shared</a></li>
+                    <li><a href="#" data-filter="starred">Starred</a></li>
                     <li><a href="#" data-filter="all">All</a></li>
                 </ul>
 
@@ -50,6 +64,7 @@
                                 <th class="sortable-header" data-sort="title">Title <i class="fa fa-sort"></i></th>
                                 <th class="sortable-header" data-sort="type">Type <i class="fa fa-sort"></i></th>
                                 <th class="sortable-header" data-sort="createddate">Created Date <i class="fa fa-sort"></i></th>
+                                <th>Star</th>
                                 <th>Is Completed</th>
                                 <th>Is Shared</th>
                                 <th>Is Public</th>
@@ -65,6 +80,7 @@
                                     <tr class="<%= checklist.checklist_is_completed ? 'row-completed' : '' %>"
                                         data-is-completed="<%= checklist.checklist_is_completed ? 'true' : 'false' %>"
                                         data-is-shared="<%= checklist.checklist_is_shared ? 'true' : 'false' %>"
+                                        data-is-starred="<%= checklist.checklist_is_starred ? 'true' : 'false' %>"
                                         data-sort-title="<%= checklist.checklist_title.toLowerCase() %>"
                                         data-sort-type="<%= checklist.checklist_type.toLowerCase() %>"
                                         data-sort-createddate="<%= checklist.createdAt ? new Date(checklist.createdAt).toISOString() : '' %>">
@@ -73,6 +89,10 @@
                                         </td>
                                         <td><%= checklist.checklist_type %></td>
                                         <td><%= checklist.createdAt ? new Date(checklist.createdAt).toLocaleDateString() : '' %></td>
+                                        <td class="text-center">
+                                            <i class="fa <%= checklist.checklist_is_starred ? 'fa-star' : 'fa-star-o' %> star-icon"
+                                               onclick="toggleStar('<%= checklist._id %>', this)"></i>
+                                        </td>
                                         <td>
                                             <% if (checklist && checklist.checklist_is_completed) { %>
                                                 <i class="fa fa-check"></i> <!-- Public (check) -->
@@ -126,11 +146,11 @@
                                 <% }) %>
                             <% } else { %>
                                 <tr>
-                                    <td colspan="10" class="text-center">No checklists available</td>
+                                    <td colspan="11" class="text-center">No checklists available</td>
                                 </tr>
                             <% } %>
                             <tr id="emptyFilterRow" style="display:none;">
-                                <td colspan="10" class="text-center">No checklists match this filter</td>
+                                <td colspan="11" class="text-center">No checklists match this filter</td>
                             </tr>
                         </tbody>
                     </table>
@@ -163,6 +183,30 @@
         });
     }
 
+    function toggleStar(checklist_id, icon_element) {
+        const row = icon_element.closest('tr');
+        const new_is_starred = row.dataset.isStarred !== 'true';
+
+        fetch('/api/checklist/toggle-star', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ checklist_id: checklist_id, is_starred: new_is_starred })
+        })
+        .then(response => response.json())
+        .then(() => {
+            row.dataset.isStarred = new_is_starred ? 'true' : 'false';
+            icon_element.classList.toggle('fa-star', new_is_starred);
+            icon_element.classList.toggle('fa-star-o', !new_is_starred);
+
+            // Re-apply the currently active filter in case the Starred tab is active
+            const active_filter = document.querySelector('#checklistFilterTabs li.active a').dataset.filter;
+            applyFilter(active_filter);
+        })
+        .catch(err => {
+            console.error('Error toggling star:', err);
+        });
+    }
+
     function applyFilter(filter) {
         const rows = document.querySelectorAll('#checklistTableBody tr[data-is-completed]');
         let visible_count = 0;
@@ -176,6 +220,8 @@
                 show_row = row.dataset.isCompleted === 'true';
             } else if (filter === 'shared') {
                 show_row = row.dataset.isShared === 'true';
+            } else if (filter === 'starred') {
+                show_row = row.dataset.isStarred === 'true';
             }
 
             row.style.display = show_row ? '' : 'none';

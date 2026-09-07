@@ -125,6 +125,9 @@ app.get('/share/:url_slug', checklistController.renderSharedChecklistPage);
 // Toggle Checklist Item Completion
 app.post('/api/checklist/toggle-item-completion', checklistController.toggleItemCompletion)
 
+// Toggle Checklist Starred status
+app.post('/api/checklist/toggle-star', checklistController.toggleStarChecklist)
+
 // Share Checklist with a user
 app.post("/api/share-checklist", checklistController.shareChecklist);
 

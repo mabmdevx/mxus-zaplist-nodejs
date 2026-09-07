@@ -32,6 +32,11 @@ exports.renderListMyOwnedChecklists = async (req, res) => {
             );
         });
 
+        // Add `checklist_is_starred` attribute
+        my_checklists_with_additions.forEach(checklist => {
+            checklist.checklist_is_starred = (checklist.checklist_starred_by || []).includes(session_user_system_id);
+        });
+
         // Commented out - For testing and debugging only
         //console.log("renderListMyOwnedChecklists() :: my_checklists_with_additions for checklist_is_completed : ", my_checklists_with_additions);
 
@@ -88,6 +93,11 @@ exports.renderListMySharedChecklists = async (req, res) => {
             );
         });
         
+
+        // Add `checklist_is_starred` attribute
+        my_shared_checklists.forEach(checklist => {
+            checklist.checklist_is_starred = (checklist.checklist_starred_by || []).includes(session_user_system_id);
+        });
 
         // Commented out - For testing and debugging only
         //console.log("renderListMySharedChecklists() :: my_shared_checklists for checklist_is_completed : ", JSON.stringify(my_shared_checklists, null, 2));
@@ -552,6 +562,36 @@ exports.toggleItemCompletion = async (req, res) => {
     } catch (error) {
         console.error("Error updating item completion status:", error);
         res.status(500).json({ message: "Error updating item completion status." });
+    }
+};
+
+exports.toggleStarChecklist = async (req, res) => {
+    try {
+        console.log("toggleStarChecklist() :: Function called");
+
+        const session_user_system_id = req.session.session_user_system_id;
+        const { checklist_id, is_starred } = req.body;
+
+        console.log("toggleStarChecklist() :: checklist_id: " + checklist_id);
+        console.log("toggleStarChecklist() :: is_starred: " + is_starred);
+
+        if (is_starred) {
+            await Checklist.updateOne(
+                { _id: checklist_id },
+                { $addToSet: { checklist_starred_by: session_user_system_id } }
+            );
+        } else {
+            await Checklist.updateOne(
+                { _id: checklist_id },
+                { $pull: { checklist_starred_by: session_user_system_id } }
+            );
+        }
+
+        console.log("toggleStarChecklist() :: Success - Star status updated");
+        res.status(200).json({ message: "Star status updated.", is_starred: !!is_starred });
+    } catch (error) {
+        console.error("Error updating star status:", error);
+        res.status(500).json({ message: "Error updating star status." });
     }
 };
 
