@@ -21,10 +21,10 @@
             <div class="panel-body">
 
                 <ul class="nav nav-tabs" id="checklistFilterTabs" style="margin-bottom: 15px;">
-                    <li class="active"><a href="#" data-filter="all">All</a></li>
-                    <li><a href="#" data-filter="open">Open</a></li>
+                    <li class="active"><a href="#" data-filter="open">Open</a></li>
                     <li><a href="#" data-filter="completed">Completed</a></li>
                     <li><a href="#" data-filter="shared">Shared</a></li>
+                    <li><a href="#" data-filter="all">All</a></li>
                 </ul>
 
                 <div class="table-responsive">
@@ -142,6 +142,31 @@
         });
     }
 
+    function applyFilter(filter) {
+        const rows = document.querySelectorAll('#checklistTableBody tr[data-is-completed]');
+        let visible_count = 0;
+
+        rows.forEach(row => {
+            let show_row = true;
+
+            if (filter === 'open') {
+                show_row = row.dataset.isCompleted === 'false';
+            } else if (filter === 'completed') {
+                show_row = row.dataset.isCompleted === 'true';
+            } else if (filter === 'shared') {
+                show_row = row.dataset.isShared === 'true';
+            }
+
+            row.style.display = show_row ? '' : 'none';
+            if (show_row) visible_count++;
+        });
+
+        const empty_filter_row = document.getElementById('emptyFilterRow');
+        if (empty_filter_row) {
+            empty_filter_row.style.display = visible_count === 0 ? '' : 'none';
+        }
+    }
+
     document.querySelectorAll('#checklistFilterTabs a').forEach(tab_link => {
         tab_link.addEventListener('click', function (event) {
             event.preventDefault();
@@ -149,31 +174,12 @@
             document.querySelectorAll('#checklistFilterTabs li').forEach(li => li.classList.remove('active'));
             this.parentElement.classList.add('active');
 
-            const filter = this.dataset.filter;
-            const rows = document.querySelectorAll('#checklistTableBody tr[data-is-completed]');
-            let visible_count = 0;
-
-            rows.forEach(row => {
-                let show_row = true;
-
-                if (filter === 'open') {
-                    show_row = row.dataset.isCompleted === 'false';
-                } else if (filter === 'completed') {
-                    show_row = row.dataset.isCompleted === 'true';
-                } else if (filter === 'shared') {
-                    show_row = row.dataset.isShared === 'true';
-                }
-
-                row.style.display = show_row ? '' : 'none';
-                if (show_row) visible_count++;
-            });
-
-            const empty_filter_row = document.getElementById('emptyFilterRow');
-            if (empty_filter_row) {
-                empty_filter_row.style.display = visible_count === 0 ? '' : 'none';
-            }
+            applyFilter(this.dataset.filter);
         });
     });
+
+    // Apply the default active tab's filter on page load
+    applyFilter(document.querySelector('#checklistFilterTabs li.active a').dataset.filter);
 </script>
 
 <%- include("layouts/bottom_auth") %>
