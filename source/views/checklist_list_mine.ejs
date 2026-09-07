@@ -8,6 +8,22 @@
         background-color: #d4edda !important;
         color: #256029 !important;
     }
+
+    .sortable-header {
+        cursor: pointer;
+        user-select: none;
+        white-space: nowrap;
+    }
+
+    .sortable-header .fa {
+        margin-left: 5px;
+        color: #999;
+    }
+
+    .sortable-header.sort-asc .fa,
+    .sortable-header.sort-desc .fa {
+        color: #333;
+    }
 </style>
 
 <div class="row">
@@ -31,9 +47,9 @@
                     <table class="table table-striped table-bordered table-hover" style="margin-bottom:0px;">
                         <thead>
                             <tr>
-                                <th>Title</th>
-                                <th>Type</th>
-                                <th>Created Date</th>
+                                <th class="sortable-header" data-sort="title">Title <i class="fa fa-sort"></i></th>
+                                <th class="sortable-header" data-sort="type">Type <i class="fa fa-sort"></i></th>
+                                <th class="sortable-header" data-sort="createddate">Created Date <i class="fa fa-sort"></i></th>
                                 <th>Is Completed</th>
                                 <th>Is Shared</th>
                                 <th>Is Public</th>
@@ -48,7 +64,10 @@
                                 <% my_checklists.forEach(checklist => { %>
                                     <tr class="<%= checklist.checklist_is_completed ? 'row-completed' : '' %>"
                                         data-is-completed="<%= checklist.checklist_is_completed ? 'true' : 'false' %>"
-                                        data-is-shared="<%= checklist.checklist_is_shared ? 'true' : 'false' %>">
+                                        data-is-shared="<%= checklist.checklist_is_shared ? 'true' : 'false' %>"
+                                        data-sort-title="<%= checklist.checklist_title.toLowerCase() %>"
+                                        data-sort-type="<%= checklist.checklist_type.toLowerCase() %>"
+                                        data-sort-createddate="<%= checklist.createdAt ? new Date(checklist.createdAt).toISOString() : '' %>">
                                         <td style="<%= checklist.checklist_is_completed ? 'text-decoration: line-through;' : '' %>">
                                             <%= checklist.checklist_title %>
                                         </td>
@@ -182,6 +201,46 @@
 
     // Apply the default active tab's filter on page load
     applyFilter(document.querySelector('#checklistFilterTabs li.active a').dataset.filter);
+
+    // -- Sorting (click column header) --
+    const sort_field_map = { title: 'sortTitle', type: 'sortType', createddate: 'sortCreateddate' };
+    let current_sort_field = null;
+    let current_sort_direction = 'asc';
+
+    function sortRows(sort_field, direction) {
+        const dataset_key = sort_field_map[sort_field];
+        const tbody = document.getElementById('checklistTableBody');
+        const rows = Array.from(tbody.querySelectorAll('tr[data-is-completed]'));
+
+        rows.sort((row_a, row_b) => {
+            const result = (row_a.dataset[dataset_key] || '').localeCompare(row_b.dataset[dataset_key] || '');
+            return direction === 'desc' ? -result : result;
+        });
+        rows.forEach(row => tbody.appendChild(row));
+
+        // Keep the "no results" row last
+        const empty_filter_row = document.getElementById('emptyFilterRow');
+        if (empty_filter_row) tbody.appendChild(empty_filter_row);
+    }
+
+    document.querySelectorAll('.sortable-header').forEach(header => {
+        header.addEventListener('click', function () {
+            const sort_field = this.dataset.sort;
+
+            current_sort_direction = (current_sort_field === sort_field && current_sort_direction === 'asc') ? 'desc' : 'asc';
+            current_sort_field = sort_field;
+
+            document.querySelectorAll('.sortable-header').forEach(h => {
+                h.classList.remove('sort-asc', 'sort-desc');
+                h.querySelector('.fa').className = 'fa fa-sort';
+            });
+
+            this.classList.add(current_sort_direction === 'asc' ? 'sort-asc' : 'sort-desc');
+            this.querySelector('.fa').className = current_sort_direction === 'asc' ? 'fa fa-sort-asc' : 'fa fa-sort-desc';
+
+            sortRows(sort_field, current_sort_direction);
+        });
+    });
 </script>
 
 <%- include("layouts/bottom_auth") %>
