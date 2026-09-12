@@ -1,0 +1,405 @@
+<%- include("layouts/top_auth") %>
+
+<style>
+    .readonly-background {
+        background-color: #f7fbfb !important;
+    }
+
+    .marked-complete {
+        text-decoration: line-through;
+        background-color: #d4edda !important;
+        color: #256029 !important;
+    }
+
+    .marked-skipped {
+        background-color: #d8d0be !important;
+    }
+
+    .move-panel {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #fff;
+        margin-bottom: 15px;
+    }
+
+    .move-panel-header {
+        padding: 12px 15px;
+        border-bottom: 1px solid #ddd;
+        background: #f5f5f5;
+        font-weight: 600;
+        overflow: hidden;
+        word-wrap: break-word;
+    }
+
+    .move-panel-body {
+        padding: 12px;
+    }
+
+    .move-list {
+        min-height: 160px;
+        border: 1px dashed #c8c8c8;
+        border-radius: 4px;
+        padding: 8px;
+        background: #fcfcfc;
+    }
+
+    .move-item {
+        cursor: move;
+        margin-bottom: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 8px;
+        background: #ffffff;
+        display: flex;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .move-item-name {
+        flex: 1;
+        min-width: 0;
+        border: 1px solid #d4d4d4;
+        border-radius: 4px;
+        padding: 6px 10px;
+    }
+
+    .drag-handle {
+        cursor: grab;
+        color: #888;
+        touch-action: none;
+        align-self: center;
+    }
+
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+
+    .move-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .move-item.dragging {
+        opacity: 0.55;
+    }
+
+    .drop-active {
+        background: #eef8ff;
+        border-color: #7db8e8;
+    }
+
+    .empty-hint {
+        color: #7a7a7a;
+        text-align: center;
+        padding: 30px 10px;
+        font-style: italic;
+    }
+
+    .toolbar-row {
+        margin-bottom: 15px;
+    }
+
+    .toolbar-row .alert {
+        margin-bottom: 10px;
+    }
+
+    .destination-picker {
+        display: flex;
+        align-items: stretch;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .destination-picker .form-group {
+        flex: 1;
+        min-width: 0;
+        margin: 0;
+        width: auto;
+    }
+
+    .destination-picker select {
+        width: 100%;
+    }
+
+    .destination-picker .btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .move-actions .btn {
+        margin-bottom: 8px;
+        margin-right: 6px;
+    }
+
+    @media (min-width: 992px) {
+        .toolbar-row .alert {
+            margin-bottom: 0;
+        }
+
+        .destination-picker {
+            margin-bottom: 0;
+            justify-content: flex-end;
+        }
+
+        .move-panel {
+            min-height: 480px;
+            margin-bottom: 0;
+        }
+
+        .move-list {
+            min-height: 360px;
+        }
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header page-header-title">Move Checklist Items</h2>
+    </div>
+</div>
+
+<div class="row toolbar-row">
+    <div class="col-xs-12 col-md-6">
+        <div class="alert alert-info">
+            Drag and drop items between the two checklists, then click Save Moves.
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-6">
+        <form method="get" action="/move-items/<%= source_checklist._id %>" class="destination-picker">
+            <div class="form-group">
+                <select name="destination_checklist_id" class="form-control" required>
+                    <option value="">Select destination checklist</option>
+                    <% destination_checklists.forEach(checklist => { %>
+                        <option value="<%= checklist._id %>" <%= selected_destination_checklist_id === checklist._id.toString() ? "selected" : "" %>>
+                            <%= checklist.checklist_title %> (<%= checklist.checklist_type %>)
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fa fa-folder-open"></i> Open
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-md-6">
+        <div class="move-panel">
+            <div class="move-panel-header">
+                Source: <%= source_checklist.checklist_title %>
+                <span class="pull-right badge" id="sourceCount"><%= source_checklist.checklist_items.length %></span>
+            </div>
+            <div class="move-panel-body">
+                <div id="source-list" class="move-list">
+                    <% if (source_checklist.checklist_items.length === 0) { %>
+                        <div class="empty-hint">No items in source checklist.</div>
+                    <% } else { %>
+                        <% source_checklist.checklist_items.forEach(item => { %>
+                            <% 
+                                const item_state = (item.is_completed === "complete" || item.is_completed === true || item.is_completed === "true" || item.is_completed === "checked" || item.is_completed === "on")
+                                    ? "complete"
+                                    : (item.is_completed === "skipped" ? "skipped" : "incomplete");
+                                const item_state_class = item_state === "complete" ? "marked-complete" : (item_state === "skipped" ? "marked-skipped" : "readonly-background");
+                            %>
+                            <div class="move-item" draggable="true" data-item-id="<%= item._id %>">
+                                <span class="move-item-name <%= item_state_class %>"><%= item.item_name %></span>
+                                <button type="button" class="btn btn-default btn-sm drag-handle" title="Drag to reorder"><i class="fa fa-arrows"></i></button>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-md-6">
+        <div class="move-panel">
+            <div class="move-panel-header">
+                Destination:
+                <% if (destination_checklist) { %>
+                    <%= destination_checklist.checklist_title %>
+                    <span class="pull-right badge" id="destinationCount"><%= destination_checklist.checklist_items.length %></span>
+                <% } else { %>
+                    <span style="font-weight: normal; color: #777;">Select and open a destination checklist</span>
+                    <span class="pull-right badge" id="destinationCount">0</span>
+                <% } %>
+            </div>
+            <div class="move-panel-body">
+                <div id="destination-list" class="move-list">
+                    <% if (!destination_checklist) { %>
+                        <div class="empty-hint">Choose a destination checklist to begin moving items.</div>
+                    <% } else if (destination_checklist.checklist_items.length === 0) { %>
+                        <div class="empty-hint">No items in destination checklist.</div>
+                    <% } else { %>
+                        <% destination_checklist.checklist_items.forEach(item => { %>
+                            <% 
+                                const item_state = (item.is_completed === "complete" || item.is_completed === true || item.is_completed === "true" || item.is_completed === "checked" || item.is_completed === "on")
+                                    ? "complete"
+                                    : (item.is_completed === "skipped" ? "skipped" : "incomplete");
+                                const item_state_class = item_state === "complete" ? "marked-complete" : (item_state === "skipped" ? "marked-skipped" : "readonly-background");
+                            %>
+                            <div class="move-item" draggable="true" data-item-id="<%= item._id %>">
+                                <span class="move-item-name <%= item_state_class %>"><%= item.item_name %></span>
+                                <button type="button" class="btn btn-default btn-sm drag-handle" title="Drag to reorder"><i class="fa fa-arrows"></i></button>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 16px;">
+    <div class="col-xs-12 move-actions">
+        <button id="saveMovesBtn" type="button" class="btn btn-success" <%= destination_checklist ? "" : "disabled" %>>
+            <i class="fa fa-save"></i> Save Moves
+        </button>
+        <a href="/view-checklist/<%= source_checklist._id %>" class="btn btn-default">
+            <i class="fa fa-arrow-left"></i> Back to Checklist
+        </a>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const sourceList = document.getElementById('source-list');
+        const destinationList = document.getElementById('destination-list');
+        const saveMovesBtn = document.getElementById('saveMovesBtn');
+        const sourceCount = document.getElementById('sourceCount');
+        const destinationCount = document.getElementById('destinationCount');
+        let draggedItem = null;
+
+        function listItems(listEl) {
+            return Array.from(listEl.querySelectorAll('.move-item'));
+        }
+
+        function updateCounts() {
+            sourceCount.textContent = listItems(sourceList).length;
+            destinationCount.textContent = listItems(destinationList).length;
+        }
+
+        function toggleEmptyHints() {
+            [sourceList, destinationList].forEach((listEl) => {
+                const hint = listEl.querySelector('.empty-hint');
+                const count = listItems(listEl).length;
+                if (count === 0) {
+                    if (!hint) {
+                        const msg = document.createElement('div');
+                        msg.className = 'empty-hint';
+                        msg.textContent = listEl.id === 'source-list'
+                            ? 'No items in source checklist.'
+                            : 'No items in destination checklist.';
+                        listEl.appendChild(msg);
+                    }
+                } else if (hint) {
+                    hint.remove();
+                }
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.move-item:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                }
+                return closest;
+            }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+        }
+
+        function attachDragEvents(item) {
+            item.addEventListener('dragstart', () => {
+                draggedItem = item;
+                item.classList.add('dragging');
+            });
+
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+                draggedItem = null;
+                toggleEmptyHints();
+                updateCounts();
+            });
+        }
+
+        function attachListEvents(listEl) {
+            listEl.addEventListener('dragover', (e) => {
+                if (!draggedItem) {
+                    return;
+                }
+                e.preventDefault();
+                const afterElement = getDragAfterElement(listEl, e.clientY);
+                if (afterElement == null) {
+                    listEl.appendChild(draggedItem);
+                } else {
+                    listEl.insertBefore(draggedItem, afterElement);
+                }
+            });
+
+            listEl.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                listEl.classList.add('drop-active');
+            });
+
+            listEl.addEventListener('dragleave', () => {
+                listEl.classList.remove('drop-active');
+            });
+
+            listEl.addEventListener('drop', (e) => {
+                e.preventDefault();
+                listEl.classList.remove('drop-active');
+                toggleEmptyHints();
+                updateCounts();
+            });
+        }
+
+        function getItemIds(listEl) {
+            return listItems(listEl).map((itemEl) => itemEl.dataset.itemId);
+        }
+
+        listItems(sourceList).forEach(attachDragEvents);
+        listItems(destinationList).forEach(attachDragEvents);
+        attachListEvents(sourceList);
+        attachListEvents(destinationList);
+        toggleEmptyHints();
+        updateCounts();
+
+        if (saveMovesBtn) {
+            saveMovesBtn.addEventListener('click', async () => {
+                saveMovesBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/checklist/move-items', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            source_checklist_id: '<%= source_checklist._id %>',
+                            destination_checklist_id: '<%= destination_checklist ? destination_checklist._id : "" %>',
+                            source_order: getItemIds(sourceList),
+                            destination_order: getItemIds(destinationList)
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        alert(data.message || 'Unable to save item moves.');
+                        saveMovesBtn.disabled = false;
+                        return;
+                    }
+
+                    window.location.href = '/view-checklist/<%= source_checklist._id %>';
+                } catch (error) {
+                    alert('Unable to save item moves.');
+                    saveMovesBtn.disabled = false;
+                }
+            });
+        }
+    })();
+</script>
+
+<%- include("layouts/bottom_auth") %>

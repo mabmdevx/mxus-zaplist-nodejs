@@ -782,3 +782,202 @@ exports.unshareChecklist = async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
+exports.renderMoveChecklistItemsPage = async (req, res) => {
+    try {
+        console.log("renderMoveChecklistItemsPage() :: Function called");
+
+        const source_checklist_id = req.params.checklist_id;
+        const destination_checklist_id = req.query.destination_checklist_id || "";
+        const session_user_id = req.session.session_user_id;
+        const session_user_system_id = req.session.session_user_system_id;
+
+        const source_checklist = await Checklist.findOne({ _id: source_checklist_id, is_deleted: false });
+
+        if (!source_checklist) {
+            return res.render("error_general_auth", {
+                SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
+                STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+                STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+                session_user_id: session_user_id,
+                session_user_system_id: session_user_system_id,
+                error_title: "Error",
+                msg_error: "Source checklist not found."
+            });
+        }
+
+        const source_owner = source_checklist.created_by.toString() === session_user_system_id;
+        const source_shared_rw = source_checklist.checklist_shared_with.find(
+            (share) => share.share_user_id && share.share_user_id.toString() === session_user_system_id && share.share_access_level === "RW"
+        );
+
+        if (!source_owner && !source_shared_rw) {
+            return res.render("error_general_auth", {
+                SITE_TITLE: process.env.SITE_TITLE,
+                CURRENT_YEAR: new Date().getFullYear(),
+                STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+                STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+                session_user_id: session_user_id,
+                session_user_system_id: session_user_system_id,
+                error_title: "Access Denied",
+                msg_error: "You do not have permission to move items from this checklist."
+            });
+        }
+
+        const destination_checklists = await Checklist.find({
+            _id: { $ne: source_checklist_id },
+            is_deleted: false,
+            $or: [
+                { created_by: session_user_system_id },
+                {
+                    checklist_shared_with: {
+                        $elemMatch: {
+                            share_user_id: session_user_system_id,
+                            share_access_level: "RW"
+                        }
+                    }
+                }
+            ]
+        }).sort({ checklist_title: 1 });
+
+        let destination_checklist = null;
+        if (destination_checklist_id) {
+            destination_checklist = await Checklist.findOne({ _id: destination_checklist_id, is_deleted: false });
+
+            if (!destination_checklist) {
+                return res.render("error_general_auth", {
+                    SITE_TITLE: process.env.SITE_TITLE,
+                    CURRENT_YEAR: new Date().getFullYear(),
+                    STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+                    STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+                    session_user_id: session_user_id,
+                    session_user_system_id: session_user_system_id,
+                    error_title: "Error",
+                    msg_error: "Destination checklist not found."
+                });
+            }
+
+            const destination_owner = destination_checklist.created_by.toString() === session_user_system_id;
+            const destination_shared_rw = destination_checklist.checklist_shared_with.find(
+                (share) => share.share_user_id && share.share_user_id.toString() === session_user_system_id && share.share_access_level === "RW"
+            );
+
+            if (!destination_owner && !destination_shared_rw) {
+                return res.render("error_general_auth", {
+                    SITE_TITLE: process.env.SITE_TITLE,
+                    CURRENT_YEAR: new Date().getFullYear(),
+                    STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+                    STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+                    session_user_id: session_user_id,
+                    session_user_system_id: session_user_system_id,
+                    error_title: "Access Denied",
+                    msg_error: "You do not have permission to move items into this destination checklist."
+                });
+            }
+        }
+
+        return res.render("checklist_move_items", {
+            SITE_TITLE: process.env.SITE_TITLE,
+            CURRENT_YEAR: new Date().getFullYear(),
+            STATCOUNTER_PROJECT_ID: process.env.STATCOUNTER_PROJECT_ID,
+            STATCOUNTER_SECURITY_CODE: process.env.STATCOUNTER_SECURITY_CODE,
+            session_user_id: session_user_id,
+            session_user_system_id: session_user_system_id,
+            source_checklist: source_checklist,
+            destination_checklist: destination_checklist,
+            destination_checklists: destination_checklists,
+            selected_destination_checklist_id: destination_checklist_id
+        });
+    } catch (error) {
+        errorHandler(error, req, res);
+    }
+};
+
+exports.moveChecklistItems = async (req, res) => {
+    try {
+        console.log("moveChecklistItems() :: Function called");
+
+        const session_user_system_id = req.session.session_user_system_id;
+        const {
+            source_checklist_id,
+            destination_checklist_id,
+            source_order,
+            destination_order
+        } = req.body;
+
+        if (!source_checklist_id || !destination_checklist_id || !Array.isArray(source_order) || !Array.isArray(destination_order)) {
+            return res.status(400).json({ success: false, message: "Invalid request payload." });
+        }
+
+        if (source_checklist_id === destination_checklist_id) {
+            return res.status(400).json({ success: false, message: "Source and destination checklists must be different." });
+        }
+
+        const source_checklist = await Checklist.findOne({ _id: source_checklist_id, is_deleted: false });
+        const destination_checklist = await Checklist.findOne({ _id: destination_checklist_id, is_deleted: false });
+
+        if (!source_checklist || !destination_checklist) {
+            return res.status(404).json({ success: false, message: "Checklist not found." });
+        }
+
+        const source_owner = source_checklist.created_by.toString() === session_user_system_id;
+        const source_shared_rw = source_checklist.checklist_shared_with.find(
+            (share) => share.share_user_id && share.share_user_id.toString() === session_user_system_id && share.share_access_level === "RW"
+        );
+        const destination_owner = destination_checklist.created_by.toString() === session_user_system_id;
+        const destination_shared_rw = destination_checklist.checklist_shared_with.find(
+            (share) => share.share_user_id && share.share_user_id.toString() === session_user_system_id && share.share_access_level === "RW"
+        );
+
+        if ((!source_owner && !source_shared_rw) || (!destination_owner && !destination_shared_rw)) {
+            return res.status(403).json({ success: false, message: "Access denied." });
+        }
+
+        const original_items = [...source_checklist.checklist_items, ...destination_checklist.checklist_items];
+        const original_item_ids = original_items.map((item) => item._id.toString());
+        const incoming_item_ids = [...source_order, ...destination_order].map((id) => id.toString());
+
+        const original_sorted = [...original_item_ids].sort();
+        const incoming_sorted = [...incoming_item_ids].sort();
+
+        if (original_sorted.length !== incoming_sorted.length) {
+            return res.status(400).json({ success: false, message: "Item mismatch detected." });
+        }
+
+        for (let i = 0; i < original_sorted.length; i += 1) {
+            if (original_sorted[i] !== incoming_sorted[i]) {
+                return res.status(400).json({ success: false, message: "Invalid item ordering payload." });
+            }
+        }
+
+        const item_map = new Map();
+        original_items.forEach((item) => item_map.set(item._id.toString(), item.toObject()));
+
+        const source_next_items = source_order.map((item_id) => {
+            const item = item_map.get(item_id.toString());
+            item.updated_by = session_user_system_id;
+            return item;
+        });
+
+        const destination_next_items = destination_order.map((item_id) => {
+            const item = item_map.get(item_id.toString());
+            item.updated_by = session_user_system_id;
+            return item;
+        });
+
+        source_checklist.checklist_items = source_next_items;
+        source_checklist.updated_by = session_user_system_id;
+
+        destination_checklist.checklist_items = destination_next_items;
+        destination_checklist.updated_by = session_user_system_id;
+
+        await source_checklist.save();
+        await destination_checklist.save();
+
+        return res.json({ success: true, message: "Items moved successfully." });
+    } catch (error) {
+        console.error("moveChecklistItems() :: Error", error);
+        return res.status(500).json({ success: false, message: "Server error." });
+    }
+};

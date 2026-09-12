@@ -114,6 +114,9 @@ app.post("/update-checklist/:checklist_id", checklistController.updateChecklist)
 // View Checklist
 app.get("/view-checklist/:checklist_id", checklistController.renderViewChecklistPage);
 
+// Move Checklist Items
+app.get("/move-items/:checklist_id", checklistController.renderMoveChecklistItemsPage);
+
 // Delete Checklist
 app.get("/delete-checklist/:checklist_id", checklistController.deleteChecklist);
 
@@ -127,6 +130,9 @@ app.post('/api/checklist/toggle-item-completion', checklistController.toggleItem
 
 // Toggle Checklist Starred status
 app.post('/api/checklist/toggle-star', checklistController.toggleStarChecklist)
+
+// Move checklist items between checklists
+app.post('/api/checklist/move-items', checklistController.moveChecklistItems)
 
 // Share Checklist with a user
 app.post("/api/share-checklist", checklistController.shareChecklist);
