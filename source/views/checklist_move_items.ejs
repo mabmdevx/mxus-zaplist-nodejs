@@ -36,7 +36,7 @@
     }
 
     .move-list {
-        min-height: 160px;
+        min-height: 120px;
         border: 1px dashed #c8c8c8;
         border-radius: 4px;
         padding: 8px;
@@ -130,7 +130,7 @@
         margin-right: 6px;
     }
 
-    @media (min-width: 992px) {
+    @media (min-width: 768px) {
         .toolbar-row .alert {
             margin-bottom: 0;
         }
@@ -140,12 +140,32 @@
             justify-content: flex-end;
         }
 
+        .move-columns {
+            display: flex;
+        }
+
+        .move-columns > [class*="col-"] {
+            display: flex;
+            flex-direction: column;
+        }
+
         .move-panel {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            width: 100%;
             min-height: 480px;
             margin-bottom: 0;
         }
 
+        .move-panel-body {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
         .move-list {
+            flex: 1 1 auto;
             min-height: 360px;
         }
     }
@@ -182,7 +202,7 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row move-columns">
     <div class="col-xs-12 col-md-6">
         <div class="move-panel">
             <div class="move-panel-header">
