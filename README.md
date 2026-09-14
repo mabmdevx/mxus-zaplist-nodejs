@@ -153,6 +153,8 @@ exit
 ```
 pm2 start app.js --name "zaplist"
 ```
+Note: The pm2 process is per user, make sure you are always deploying/re-deploying using the same user.
+
 
 ### How to redeploy the app for updates and fixes
 ```bash
