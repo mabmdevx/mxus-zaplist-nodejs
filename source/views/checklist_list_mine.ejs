@@ -38,6 +38,35 @@
         color: #999;
     }
 
+    .park-icon {
+        display: inline-block;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 16px;
+        width: 18px;
+        height: 18px;
+        text-align: center;
+        border-radius: 3px;
+        border: 1px solid #aaa;
+        color: #aaa;
+        background-color: #fff;
+        user-select: none;
+        vertical-align: middle;
+        transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .park-icon:hover {
+        border-color: #337ab7;
+        color: #337ab7;
+    }
+
+    .park-icon.parked {
+        border-color: #337ab7;
+        background-color: #337ab7;
+        color: #fff;
+    }
+
     #checklistFilterTabs {
         display: flex;
         flex-wrap: nowrap;
@@ -70,6 +99,7 @@
                     <li><a href="#" data-filter="completed">Completed</a></li>
                     <li><a href="#" data-filter="shared">Shared</a></li>
                     <li><a href="#" data-filter="starred">Starred</a></li>
+                    <li><a href="#" data-filter="parked">Parked</a></li>
                     <li><a href="#" data-filter="public">Public</a></li>
                     <li><a href="#" data-filter="all">All</a></li>
                 </ul>
@@ -82,6 +112,7 @@
                                 <th class="sortable-header" data-sort="type">Type <i class="fa fa-sort"></i></th>
                                 <th class="sortable-header" data-sort="createddate">Created Date <i class="fa fa-sort"></i></th>
                                 <th>Star</th>
+                                <th>Park</th>
                                 <th>Is Completed</th>
                                 <th>Is Shared</th>
                                 <th>Is Public</th>
@@ -98,6 +129,7 @@
                                         data-is-completed="<%= checklist.checklist_is_completed ? 'true' : 'false' %>"
                                         data-is-shared="<%= checklist.checklist_is_shared ? 'true' : 'false' %>"
                                         data-is-starred="<%= checklist.checklist_is_starred ? 'true' : 'false' %>"
+                                        data-is-parked="<%= checklist.checklist_is_parked ? 'true' : 'false' %>"
                                         data-is-public="<%= checklist.checklist_is_public ? 'true' : 'false' %>"
                                         data-sort-title="<%= checklist.checklist_title.toLowerCase() %>"
                                         data-sort-type="<%= checklist.checklist_type.toLowerCase() %>"
@@ -110,6 +142,10 @@
                                         <td class="text-center">
                                             <i class="fa <%= checklist.checklist_is_starred ? 'fa-star' : 'fa-star-o' %> star-icon"
                                                onclick="toggleStar('<%= checklist._id %>', this)"></i>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="park-icon <%= checklist.checklist_is_parked ? 'parked' : '' %>"
+                                                  onclick="togglePark('<%= checklist._id %>', this)">P</span>
                                         </td>
                                         <td>
                                             <% if (checklist && checklist.checklist_is_completed) { %>
@@ -164,11 +200,11 @@
                                 <% }) %>
                             <% } else { %>
                                 <tr>
-                                    <td colspan="11" class="text-center">No checklists available</td>
+                                    <td colspan="12" class="text-center">No checklists available</td>
                                 </tr>
                             <% } %>
                             <tr id="emptyFilterRow" style="display:none;">
-                                <td colspan="11" class="text-center">No checklists match this filter</td>
+                                <td colspan="12" class="text-center">No checklists match this filter</td>
                             </tr>
                         </tbody>
                     </table>
@@ -225,6 +261,34 @@
         });
     }
 
+    function togglePark(checklist_id, element) {
+        const row = element.closest('tr');
+        const new_is_parked = row.dataset.isParked !== 'true';
+
+        fetch('/api/checklist/toggle-park', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ checklist_id: checklist_id, is_parked: new_is_parked })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(() => {
+            row.dataset.isParked = new_is_parked ? 'true' : 'false';
+            element.classList.toggle('parked', new_is_parked);
+
+            // Re-apply the currently active filter in case Open, Parked, etc. is active
+            const active_filter = document.querySelector('#checklistFilterTabs li.active a').dataset.filter;
+            applyFilter(active_filter);
+        })
+        .catch(err => {
+            console.error('Error toggling park:', err);
+        });
+    }
+
     function applyFilter(filter) {
         const rows = document.querySelectorAll('#checklistTableBody tr[data-is-completed]');
         let visible_count = 0;
@@ -233,13 +297,15 @@
             let show_row = true;
 
             if (filter === 'open') {
-                show_row = row.dataset.isCompleted === 'false';
+                show_row = row.dataset.isCompleted === 'false' && row.dataset.isParked !== 'true';
             } else if (filter === 'completed') {
                 show_row = row.dataset.isCompleted === 'true';
             } else if (filter === 'shared') {
                 show_row = row.dataset.isShared === 'true';
             } else if (filter === 'starred') {
                 show_row = row.dataset.isStarred === 'true';
+            } else if (filter === 'parked') {
+                show_row = row.dataset.isParked === 'true';
             } else if (filter === 'public') {
                 show_row = row.dataset.isPublic === 'true';
             }

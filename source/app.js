@@ -131,6 +131,9 @@ app.post('/api/checklist/toggle-item-completion', checklistController.toggleItem
 // Toggle Checklist Starred status
 app.post('/api/checklist/toggle-star', checklistController.toggleStarChecklist)
 
+// Toggle Checklist Parked status
+app.post('/api/checklist/toggle-park', checklistController.toggleParkChecklist)
+
 // Move checklist items between checklists
 app.post('/api/checklist/move-items', checklistController.moveChecklistItems)
 

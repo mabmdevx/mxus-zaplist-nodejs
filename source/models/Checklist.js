@@ -35,6 +35,7 @@ const ChecklistSchema = new mongoose.Schema({
         share_access_level: { type: String, enum: ["RO", "RW"], default: "RW" }
     }],
     checklist_starred_by: [{ type: String, ref: "User" }], // Users who have starred this checklist
+    checklist_parked_by: [{ type: String, ref: "User" }], // Users who have parked this checklist
     created_by: { type: String, ref: "User", required: true }, // References User using UUID
     updated_by: { type: String, ref: "User", required: true }, // References User using UUID
     is_deleted: { type: Boolean, default: false },

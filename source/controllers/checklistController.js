@@ -37,6 +37,11 @@ exports.renderListMyOwnedChecklists = async (req, res) => {
             checklist.checklist_is_starred = (checklist.checklist_starred_by || []).includes(session_user_system_id);
         });
 
+        // Add `checklist_is_parked` attribute
+        my_checklists_with_additions.forEach(checklist => {
+            checklist.checklist_is_parked = (checklist.checklist_parked_by || []).includes(session_user_system_id);
+        });
+
         // Commented out - For testing and debugging only
         //console.log("renderListMyOwnedChecklists() :: my_checklists_with_additions for checklist_is_completed : ", my_checklists_with_additions);
 
@@ -97,6 +102,11 @@ exports.renderListMySharedChecklists = async (req, res) => {
         // Add `checklist_is_starred` attribute
         my_shared_checklists.forEach(checklist => {
             checklist.checklist_is_starred = (checklist.checklist_starred_by || []).includes(session_user_system_id);
+        });
+
+        // Add `checklist_is_parked` attribute
+        my_shared_checklists.forEach(checklist => {
+            checklist.checklist_is_parked = (checklist.checklist_parked_by || []).includes(session_user_system_id);
         });
 
         // Commented out - For testing and debugging only
@@ -592,6 +602,36 @@ exports.toggleStarChecklist = async (req, res) => {
     } catch (error) {
         console.error("Error updating star status:", error);
         res.status(500).json({ message: "Error updating star status." });
+    }
+};
+
+exports.toggleParkChecklist = async (req, res) => {
+    try {
+        console.log("toggleParkChecklist() :: Function called");
+
+        const session_user_system_id = req.session.session_user_system_id;
+        const { checklist_id, is_parked } = req.body;
+
+        console.log("toggleParkChecklist() :: checklist_id: " + checklist_id);
+        console.log("toggleParkChecklist() :: is_parked: " + is_parked);
+
+        if (is_parked) {
+            await Checklist.updateOne(
+                { _id: checklist_id },
+                { $addToSet: { checklist_parked_by: session_user_system_id } }
+            );
+        } else {
+            await Checklist.updateOne(
+                { _id: checklist_id },
+                { $pull: { checklist_parked_by: session_user_system_id } }
+            );
+        }
+
+        console.log("toggleParkChecklist() :: Success - Park status updated");
+        res.status(200).json({ message: "Park status updated.", is_parked: !!is_parked });
+    } catch (error) {
+        console.error("Error updating park status:", error);
+        res.status(500).json({ message: "Error updating park status." });
     }
 };
 
